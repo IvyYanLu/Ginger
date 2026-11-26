@@ -8,3 +8,9 @@ HIDE_MODIFIER_LISTS=
 # "*" = all other categories, A–Z
 CATEGORY_ORDER=Appetizers,*,Desserts,Drinks
 PREP_TIME=PT20M
+# Longer prep in busy windows (location time zone). Separate rules with ";".
+BUSY_PREP_TIME=FRI-SAT 17:00-19:00 PT30M
+# Last pickup = each day's final closing time minus N minutes.
+PICKUP_CUTOFF=MON-FRI:10,SAT-SUN:15
+# Today plus the next N-1 days.
+SCHEDULE_DAYS=3
