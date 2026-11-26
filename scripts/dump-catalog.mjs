@@ -3,7 +3,7 @@
 // Usage: node scripts/dump-catalog.mjs   (reads env vars, falling back to .dev.vars)
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { listCatalog, getLocation, isPresentAt } from "../lib/square.js";
+import { listCatalog, getLocation, isPresentAt, childLists } from "../lib/square.js";
 
 // Minimal KEY=value parser for .dev.vars (quotes optional, # comments).
 export function parseDevVars(text) {
@@ -30,16 +30,6 @@ function loadEnv() {
 
 const money = (m) => (m ? `$${(Number(m.amount) / 100).toFixed(2)}${m.currency && m.currency !== "USD" ? " " + m.currency : ""}` : "—");
 const flag = (cond, label) => (cond ? ` [${label}]` : "");
-
-// Nested modifiers: older field `child_modifier_list_ids`; the 2026-08-19 beta
-// may use a different key, so also catch any modifier_list id array on the modifier.
-function childLists(modData) {
-  const ids = new Set(modData.child_modifier_list_ids ?? []);
-  for (const [k, v] of Object.entries(modData)) {
-    if (/modifier_list/.test(k) && k !== "modifier_list_id" && Array.isArray(v)) v.forEach((x) => ids.add(typeof x === "string" ? x : x?.modifier_list_id ?? JSON.stringify(x)));
-  }
-  return [...ids];
-}
 
 const fmtTime = (t) => (t ?? "").slice(0, 5);
 
