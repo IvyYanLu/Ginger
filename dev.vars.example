@@ -1,0 +1,9 @@
+# Copy to .dev.vars (git-ignored) and fill in. Never commit real values.
+SQUARE_ACCESS_TOKEN=
+SQUARE_LOCATION_ID=
+SQUARE_ENV=sandbox
+SITE_URL=http://localhost:8788
+HIDE_CATEGORIES=
+HIDE_MODIFIER_LISTS=
+CATEGORY_ORDER=
+PREP_TIME=PT20M

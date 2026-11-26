@@ -1,0 +1,30 @@
+{
+  "location": {
+    "id": "LOC1", "name": "Ginger Japanese Restaurant", "status": "ACTIVE", "timezone": "America/New_York",
+    "address": { "address_line_1": "1 Main St", "locality": "Bedford", "administrative_district_level_1": "MA", "postal_code": "01730" },
+    "phone_number": "+1 781-555-0100",
+    "business_hours": { "periods": [ { "day_of_week": "TUE", "start_local_time": "11:30:00", "end_local_time": "21:30:00" } ] }
+  },
+  "pages": [
+    { "cursor": "p2", "objects": [
+      { "type": "CATEGORY", "id": "CAT_MAKI", "category_data": { "name": "Maki" } },
+      { "type": "CATEGORY", "id": "CAT_SAKE", "category_data": { "name": "Sake" } },
+      { "type": "ITEM", "id": "IT_CAL", "item_data": { "name": "California Roll", "ecom_visibility": "VISIBLE",
+        "categories": [ { "id": "CAT_MAKI" } ], "reporting_category": { "id": "CAT_MAKI" },
+        "variations": [ { "type": "ITEM_VARIATION", "id": "V_CAL", "item_variation_data": { "name": "Regular", "pricing_type": "FIXED_PRICING", "price_money": { "amount": 850, "currency": "USD" },
+          "location_overrides": [ { "location_id": "LOC1", "sold_out": true } ] } } ],
+        "modifier_list_info": [ { "modifier_list_id": "ML_RICE", "min_selected_modifiers": -1, "max_selected_modifiers": -1, "enabled": true } ] } }
+    ] },
+    { "objects": [
+      { "type": "ITEM", "id": "IT_MKT", "item_data": { "name": "Market Fish",
+        "variations": [ { "type": "ITEM_VARIATION", "id": "V_MKT", "item_variation_data": { "name": "Regular", "pricing_type": "VARIABLE_PRICING" } } ] } },
+      { "type": "ITEM", "id": "IT_GONE", "present_at_all_locations": false, "present_at_location_ids": ["OTHER"], "item_data": { "name": "Other Shop Item", "variations": [] } },
+      { "type": "MODIFIER_LIST", "id": "ML_RICE", "modifier_list_data": { "name": "Rice", "selection_type": "SINGLE", "min_selected_modifiers": 1, "max_selected_modifiers": 1,
+        "modifiers": [
+          { "type": "MODIFIER", "id": "M_WHITE", "modifier_data": { "name": "White", "hidden_online": true } },
+          { "type": "MODIFIER", "id": "M_BROWN", "modifier_data": { "name": "Brown", "price_money": { "amount": 100, "currency": "USD" }, "hidden_online": true, "child_modifier_list_ids": ["ML_NOTE"] } }
+        ] } },
+      { "type": "MODIFIER_LIST", "id": "ML_NOTE", "modifier_list_data": { "name": "Note", "modifier_type": "TEXT" } }
+    ] }
+  ]
+}

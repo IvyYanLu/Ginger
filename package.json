@@ -1,0 +1,16 @@
+{
+  "name": "ginger-online-ordering",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "test": "node --test 'test/**/*.test.js'",
+    "test:e2e": "playwright test --trace off",
+    "dump": "node scripts/dump-catalog.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "esbuild": "^0.24.0",
+    "wrangler": "^4.0.0"
+  }
+}
