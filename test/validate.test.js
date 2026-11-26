@@ -46,6 +46,7 @@ test("validateLine (browser copy) matches the server copy", { skip: !existsSync(
   const server = block(readFileSync(new URL("../lib/square.js", import.meta.url), "utf8"));
   const browser = block(readFileSync(html, "utf8"));
   assert.ok(browser, "markers missing in index.html");
-  assert.equal(browser.replace(/^\s+/gm, ""), server.replace(/^\s+/gm, ""));
+  const norm = (s) => s.split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("//")).join("\n");
+  assert.equal(norm(browser), norm(server));
   run(new Function(browser + "\nreturn validateLine;")());
 });

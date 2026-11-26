@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { effectiveLimits, normalizeMenu, formatHours, formatTime, sortCategories, isPresentAt, restaurantInfo } from "../lib/square.js";
+import { plainText, effectiveLimits, normalizeMenu, formatHours, formatTime, sortCategories, isPresentAt, restaurantInfo } from "../lib/square.js";
 import { objects, location, env } from "./fixtures/catalog.js";
 
 describe("effectiveLimits", () => {
@@ -70,7 +70,7 @@ describe("normalizeMenu", () => {
       id: "I_EDA", name: "Edamame", desc: "Steamed soybeans, sea salt", image: "https://img.example/edamame.jpg",
       variations: [{ id: "V_EDA", label: "Regular", price: 600, soldOut: false }], modifierLists: [],
     });
-    assert.equal(find("Gyoza").desc, "<p>Pork dumplings</p>"); // escaped by the UI
+    assert.equal(find("Gyoza").desc, "Pork dumplings"); // HTML description reduced to text
     assert.equal(find("Gyoza").image, null);
   });
   test("variation price override, sold out, ordinal sort", () => {
@@ -168,4 +168,10 @@ describe("hours", () => {
       "Mon–Sun 11am–2pm, 5pm–9pm");
   });
   test("no hours -> empty", () => assert.equal(formatHours(), ""));
+});
+
+test("plainText", () => {
+  assert.equal(plainText("<p>Tuna &amp; salmon</p><p>Spicy&nbsp;mayo</p>"), "Tuna & salmon\nSpicy mayo");
+  assert.equal(plainText("a <b>bold</b> &lt;b&gt;"), "a bold <b>");
+  assert.equal(plainText(undefined), "");
 });

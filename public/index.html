@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ginger Japanese Restaurant · Order Pickup</title>
+<meta name="description" content="Order pickup online from Ginger Japanese Restaurant in Bedford, MA. Menu prices, no delivery-app fees.">
+<meta name="theme-color" content="#faf5ec">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23b9475c'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #faf5ec; --paper: #fffdf8; --ink: #1d1a16; --muted: #6f675d; --line: #e8dfd0;
+  --ginger: #e58a98; --ginger-deep: #b9475c; --ginger-soft: #fbe6ea; --ok: #3d7a57; --warn: #a3542a;
+  --radius: 14px; --shadow: 0 1px 2px rgba(29,26,22,.06), 0 4px 16px rgba(29,26,22,.06);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--cream); color: var(--ink); font: 15px/1.45 Inter, system-ui, sans-serif; }
+body.locked { overflow: hidden; }
+h1, h2, h3 { font-family: Fraunces, Georgia, serif; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--ginger-deep); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+header { padding: 22px 0 14px; }
+header h1 { font-size: 30px; line-height: 1.1; }
+.meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.meta a { color: var(--ink); font-weight: 500; text-decoration: none; border-bottom: 1px solid var(--ginger); white-space: nowrap; }
+.status { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 6px 12px; border-radius: 99px; background: var(--paper); border: 1px solid var(--line); font-size: 13px; font-weight: 500; }
+.status i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.status.closed i { background: var(--warn); }
+.direct { display: flex; gap: 12px; align-items: center; margin-top: 14px; padding: 12px 14px; border-radius: var(--radius); background: var(--ginger-soft); border: 1px solid #f3cdd4; }
+.direct b { display: block; font: 600 16px/1.25 Fraunces, Georgia, serif; color: var(--ginger-deep); }
+.direct span { font-size: 13px; }
+.direct .seal { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--ginger-deep); color: #fff; display: grid; place-items: center; font-weight: 600; }
+.hours { font-size: 13px; color: var(--muted); margin-top: 10px; }
+.banner { background: var(--ginger-soft); color: var(--ginger-deep); border-radius: 12px; padding: 12px 14px; font-weight: 500; margin-top: 14px; }
+.banner.ok { background: #e3f0e7; color: var(--ok); }
+
+nav { position: sticky; top: 0; z-index: 5; background: rgba(250,245,236,.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+nav .wrap { display: flex; gap: 6px; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; scrollbar-width: none; }
+nav .wrap::-webkit-scrollbar { display: none; }
+nav a { flex: none; padding: 7px 14px; border-radius: 99px; text-decoration: none; color: var(--ink); font-size: 14px; font-weight: 500; }
+nav a.on { background: var(--ink); color: var(--cream); }
+
+main { padding-bottom: 40px; min-height: 40vh; }
+section { padding-top: 26px; scroll-margin-top: 58px; }
+section h2 { font-size: 22px; margin-bottom: 12px; }
+.grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 960px) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
+.card { display: flex; gap: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; box-shadow: var(--shadow); }
+.card.tap { cursor: pointer; }
+.card .body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.card h3 { font: 600 16px/1.3 Inter, sans-serif; }
+.card p { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card .row { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.price { font-weight: 600; white-space: nowrap; }
+.photo { flex: none; width: 92px; height: 92px; border-radius: 10px; object-fit: cover; background: var(--ginger-soft); }
+.soldout { opacity: .55; }
+.tag { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.add { border: 0; background: var(--ink); color: var(--cream); border-radius: 99px; padding: 7px 16px; font-weight: 600; font-size: 14px; }
+.add.ghost { background: var(--ginger-soft); color: var(--ginger-deep); }
+.step { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 99px; background: var(--paper); }
+.step button { width: 34px; height: 34px; border: 0; background: none; font-size: 18px; line-height: 1; }
+.step button:disabled { opacity: .35; cursor: default; }
+.step span { min-width: 22px; text-align: center; font-weight: 600; }
+.loading, .error { padding: 40px 0; text-align: center; color: var(--muted); }
+
+.bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); z-index: 10; }
+.bar button { width: 100%; max-width: 560px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; border: 0; border-radius: 16px; padding: 15px 18px; background: var(--ginger-deep); color: #fff; font-weight: 600; font-size: 16px; box-shadow: 0 8px 24px rgba(185,71,92,.35); }
+body.has-bar footer { padding-bottom: 110px; }
+
+.scrim { position: fixed; inset: 0; background: rgba(29,26,22,.42); z-index: 20; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; max-height: 92vh; max-height: 92dvh; display: flex; flex-direction: column; background: var(--paper); border-radius: 22px 22px 0 0; transform: translateY(105%); visibility: hidden; transition: transform .25s ease, visibility 0s .25s; max-width: 600px; margin: 0 auto; }
+.sheet.open { transform: none; visibility: visible; transition: transform .25s ease; }
+.sheet .grab { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 10px auto 0; flex: none; }
+.sheet .head { padding: 10px 20px 6px; display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.sheet .head h2 { font-size: 24px; }
+.x { border: 0; background: var(--cream); width: 34px; height: 34px; border-radius: 50%; font-size: 18px; flex: none; }
+.sheet .scroll { overflow-y: auto; padding: 0 20px 12px; overscroll-behavior: contain; }
+.sheet .hero { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; margin-bottom: 10px; }
+.sheet .desc { color: var(--muted); margin: 0 0 8px; }
+fieldset { border: 0; padding: 0; margin: 18px 0 0; min-width: 0; }
+legend { display: flex; width: 100%; justify-content: space-between; align-items: baseline; font-weight: 600; padding: 0; margin-bottom: 6px; }
+legend small { font-weight: 500; font-size: 12px; color: var(--muted); }
+legend small.req { color: var(--ginger-deep); background: var(--ginger-soft); padding: 2px 8px; border-radius: 99px; }
+.opt { display: flex; align-items: center; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.opt input { width: 20px; height: 20px; accent-color: var(--ginger-deep); margin: 0; flex: none; }
+.opt span { flex: 1; }
+.opt em { font-style: normal; color: var(--muted); font-size: 14px; }
+.opt.dis { opacity: .45; cursor: default; }
+.sheet .foot { display: flex; gap: 12px; align-items: center; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); flex: none; }
+.primary { flex: 1; border: 0; border-radius: 14px; padding: 14px; background: var(--ink); color: var(--cream); font-weight: 600; font-size: 16px; }
+.primary:disabled { background: #cfc6b8; color: #fff; cursor: default; }
+.primary.pink { background: var(--ginger-deep); }
+.primary.pink:disabled { background: #d9a7b0; }
+
+.line { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.line .info { flex: 1; min-width: 0; }
+.line .mods { color: var(--muted); font-size: 13px; }
+.line .right { display: flex; flex-direction: column; align-items: end; gap: 6px; }
+.field { display: block; margin-top: 16px; font-weight: 600; font-size: 14px; }
+.field input, .field textarea, .field select { display: block; width: 100%; margin-top: 6px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font: 16px Inter, system-ui, sans-serif; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--cream); padding: 4px; border-radius: 12px; margin-top: 6px; }
+.seg button { border: 0; background: none; padding: 9px; border-radius: 9px; font-weight: 600; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: #fff; box-shadow: var(--shadow); }
+.seg button:disabled { opacity: .4; cursor: default; }
+.sum { display: flex; justify-content: space-between; margin-top: 18px; font-weight: 600; font-size: 17px; }
+.fees { display: flex; justify-content: space-between; color: var(--ok); font-size: 13.5px; font-weight: 500; margin-top: 6px; }
+.note { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 22px 0 40px; color: var(--muted); font-size: 12.5px; }
+footer strong { color: var(--ink); }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1 id="rName">Ginger Japanese Restaurant</h1>
+  <div class="meta" id="rMeta"></div>
+  <div class="status" id="rStatus" hidden><i></i><span></span></div>
+  <div class="direct"><div class="seal" aria-hidden="true">$</div><div><b>Order direct, pay less</b><span>Our in-restaurant menu prices. No delivery-app markups or service fees.</span></div></div>
+  <div class="hours" id="rHours"></div>
+  <div id="topMsg" role="status"></div>
+</header>
+<nav aria-label="Menu categories"><div class="wrap" id="nav"></div></nav>
+<main class="wrap" id="menu"><p class="loading">Loading menu…</p></main>
+<footer class="wrap">
+  <p>Consuming raw or undercooked meats, poultry, seafood, shellfish or eggs may increase your risk of foodborne illness, especially if you have certain medical conditions.</p>
+  <p><strong>Pickup only · Secure checkout by Square</strong></p>
+</footer>
+
+<div class="bar" id="bar" hidden><button id="viewCart" aria-haspopup="dialog"><span id="barCount"></span><span id="barTotal"></span></button></div>
+<div class="scrim" id="scrim"></div>
+
+<div class="sheet" id="itemSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="grab"></div>
+  <div class="head"><h2 id="sheetTitle"></h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div class="scroll" id="sheetBody"></div>
+  <div class="foot">
+    <div class="step"><button id="qMinus" aria-label="Decrease quantity">−</button><span id="qVal" aria-live="polite">1</span><button id="qPlus" aria-label="Increase quantity">+</button></div>
+    <button class="primary" id="sheetAdd"></button>
+  </div>
+</div>
+
+<div class="sheet" id="cartSheet" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+  <div class="grab"></div>
+  <div class="head"><h2 id="cartTitle">Your order</h2><button class="x" data-close aria-label="Close">✕</button></div>
+  <div class="scroll">
+    <div id="lines"></div>
+    <div class="field" id="timeField">Pickup time
+      <div class="seg" role="group" aria-label="Pickup time">
+        <button type="button" id="tAsap" aria-pressed="true">ASAP</button>
+        <button type="button" id="tLater" aria-pressed="false">Schedule</button>
+      </div>
+      <select id="slot" hidden aria-label="Pickup time"></select>
+    </div>
+    <label class="field">Name for pickup <input id="pname" autocomplete="name" maxlength="60" placeholder="Required" required></label>
+    <label class="field">Allergies or requests <textarea id="pnote" rows="2" maxlength="500" placeholder="Optional"></textarea></label>
+    <div class="sum"><span>Subtotal</span><span id="subtotal"></span></div>
+    <div class="fees"><span>Service fee</span><span>$0.00</span></div>
+    <div class="note">Tax and optional tip added at checkout</div>
+    <div id="msg" role="alert"></div>
+  </div>
+  <div class="foot"><button class="primary pink" id="checkout">Checkout with Square</button></div>
+</div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const money = (c) => "$" + (c / 100).toFixed(2);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeUrl = (u) => (/^https:\/\//i.test(u ?? "") ? u : "");
+const CART_KEY = "ginger-cart-v1";
+
+// BEGIN validateLine
+// COPY of validateLine in lib/square.js (no build step). Keep identical:
+// test/validate.test.js compares the two and runs both on the same cases.
+function validateLine(item, variationId, modifierIds, qty) {
+  if (!item) return "An item in your order is no longer available.";
+  const v = item.variations.find((x) => x.id === variationId);
+  if (!v) return `${item.name} is no longer available in that size.`;
+  if (v.soldOut) return `${item.name}${item.variations.length > 1 ? " (" + v.label + ")" : ""} is sold out.`;
+  if (!Number.isInteger(qty) || qty < 1 || qty > 20) return `Quantity for ${item.name} must be 1 to 20.`;
+  const ids = Array.isArray(modifierIds) ? modifierIds : [];
+  if (new Set(ids).size !== ids.length) return `An option for ${item.name} was selected twice.`;
+  const listOf = new Map();
+  for (const l of item.modifierLists) for (const m of l.modifiers) listOf.set(m.id, l.id);
+  if (ids.some((id) => !listOf.has(id))) return `An option for ${item.name} is no longer available.`;
+  for (const l of item.modifierLists) {
+    const n = ids.filter((id) => listOf.get(id) === l.id).length;
+    if (n < l.min) return `Choose ${l.min > 1 ? l.min + " options" : "an option"} for ${l.name} (${item.name}).`;
+    if (l.max != null && n > l.max) return `Choose at most ${l.max} for ${l.name} (${item.name}).`;
+  }
+  return null;
+}
+// END validateLine
+
+// ---- state
+let data = null;            // /api/menu response
+let byItem = new Map();     // item id -> item
+let byVar = new Map();      // variation id -> item
+let cart = new Map();       // key -> { id: variationId, modifiers: [ids], qty }
+let pickupMode = "asap";
+const keyOf = (varId, mods) => varId + "|" + [...mods].sort().join(",");
+
+function saveCart() {
+  try { localStorage.setItem(CART_KEY, JSON.stringify([...cart.values()])); } catch {}
+}
+function loadCart() {
+  try {
+    const lines = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    if (Array.isArray(lines)) for (const l of lines) {
+      if (l && typeof l.id === "string" && Array.isArray(l.modifiers)) cart.set(keyOf(l.id, l.modifiers), { id: l.id, modifiers: l.modifiers, qty: l.qty });
+    }
+  } catch {}
+}
+// Drop lines no longer valid against the current menu; returns their messages.
+function pruneCart() {
+  const dropped = [];
+  for (const [k, l] of cart) {
+    const msg = validateLine(byVar.get(l.id), l.id, l.modifiers, l.qty);
+    if (msg) { cart.delete(k); dropped.push(msg); }
+  }
+  saveCart();
+  return dropped;
+}
+
+// ---- pricing
+const modsOf = (item) => item.modifierLists.flatMap((l) => l.modifiers);
+function linePrice(l) {
+  const item = byVar.get(l.id);
+  const v = item.variations.find((x) => x.id === l.id);
+  const mods = modsOf(item).filter((m) => l.modifiers.includes(m.id));
+  return (v.price + mods.reduce((s, m) => s + m.price, 0)) * l.qty;
+}
+// Cheapest and dearest possible configuration, for the card price.
+function priceRange(item) {
+  const vs = item.variations.filter((v) => !v.soldOut).map((v) => v.price);
+  if (!vs.length) return [Math.min(...item.variations.map((v) => v.price))];
+  let lo = Math.min(...vs), hi = Math.max(...vs);
+  for (const l of item.modifierLists) {
+    const ps = l.modifiers.map((m) => m.price).sort((a, b) => a - b);
+    lo += ps.slice(0, l.min).reduce((s, p) => s + p, 0);
+    hi += ps.reverse().slice(0, l.max ?? ps.length).reduce((s, p) => s + p, 0);
+  }
+  return lo === hi ? [lo] : [lo, hi];
+}
+const priceLabel = (item) => priceRange(item).map(money).join("–");
+
+// ---- header
+function fmtPhone(p) {
+  const d = (p || "").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
+  return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : p;
+}
+function renderHeader() {
+  const r = data.restaurant;
+  if (r.name) { $("#rName").textContent = r.name; document.title = `${r.name} · Order Pickup`; }
+  const tel = (r.phone || "").replace(/[^\d+]/g, "");
+  $("#rMeta").innerHTML = [esc(r.address), r.phone ? `<a href="tel:${esc(tel)}">${esc(fmtPhone(r.phone))}</a>` : ""].filter(Boolean).join(" · ");
+  $("#rHours").textContent = r.hours || "";
+  const p = data.pickup;
+  const st = $("#rStatus");
+  st.hidden = false;
+  st.classList.toggle("closed", !p.asap.available);
+  st.querySelector("span").textContent = p.asap.available ? `Open · Pickup in about ${p.asap.minutes} min`
+    : p.slots.length ? `Closed now · Schedule a pickup from ${p.slots[0].label.toLowerCase()}` : "Online ordering is closed";
+}
+
+// ---- menu
+const isSimple = (it) => it.variations.length === 1 && !it.modifierLists.length;
+const qtyOfSimple = (it) => cart.get(keyOf(it.variations[0].id, []))?.qty ?? 0;
+
+function renderMenu() {
+  const cats = data.categories;
+  $("#nav").innerHTML = cats.map((c, i) => `<a href="#c${i}" class="${i ? "" : "on"}">${esc(c.name)}</a>`).join("");
+  $("#menu").innerHTML = cats.length ? cats.map((c, i) => `
+    <section id="c${i}" aria-labelledby="h${i}"><h2 id="h${i}">${esc(c.name)}</h2>
+      <div class="grid">${c.items.map(card).join("")}</div></section>`).join("")
+    : `<p class="error">No items are available online right now.</p>`;
+  watchNav();
+}
+function card(it) {
+  const out = it.variations.every((v) => v.soldOut);
+  let action;
+  if (out) action = `<span class="tag">Sold out</span>`;
+  else if (isSimple(it)) {
+    const q = qtyOfSimple(it);
+    action = q
+      ? `<div class="step"><button data-dec="${esc(it.id)}" aria-label="Remove one ${esc(it.name)}">−</button><span>${q}</span><button data-inc="${esc(it.id)}" aria-label="Add one more ${esc(it.name)}" ${q >= 20 ? "disabled" : ""}>+</button></div>`
+      : `<button class="add" data-inc="${esc(it.id)}" aria-label="Add ${esc(it.name)}">Add</button>`;
+  } else action = `<button class="add ghost" data-open="${esc(it.id)}" aria-label="Choose options for ${esc(it.name)}">Choose</button>`;
+  const img = safeUrl(it.image);
+  return `<div class="card ${out ? "soldout" : ""} ${!out && !isSimple(it) ? "tap" : ""}" ${!out && !isSimple(it) ? `data-open="${esc(it.id)}"` : ""}>
+    <div class="body"><h3>${esc(it.name)}</h3>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
+      <div class="row"><span class="price">${priceLabel(it)}</span>${action}</div></div>
+    ${img ? `<img class="photo" src="${esc(img)}" alt="" loading="lazy" decoding="async">` : ""}</div>`;
+}
+let navObserver;
+function watchNav() {
+  navObserver?.disconnect();
+  if (!("IntersectionObserver" in window)) return;
+  const links = [...document.querySelectorAll("nav a")];
+  navObserver = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) {
+      links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id));
+      document.querySelector("nav a.on")?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    }
+  }, { rootMargin: "-60px 0px -70% 0px" });
+  document.querySelectorAll("main section").forEach((s) => navObserver.observe(s));
+}
+
+// ---- item sheet
+let cur = null;
+function openItem(it) {
+  const v0 = it.variations.find((v) => !v.soldOut);
+  if (!v0) return;
+  cur = { it, varId: v0.id, mods: new Set(modsOf(it).filter((m) => m.default).map((m) => m.id)), qty: 1 };
+  $("#sheetTitle").textContent = it.name;
+  const img = safeUrl(it.image);
+  const vars = it.variations.length > 1 ? `<fieldset><legend>Size <small class="req">Required</small></legend>${it.variations.map((v) => `
+      <label class="opt ${v.soldOut ? "dis" : ""}"><input type="radio" name="var" value="${esc(v.id)}" ${v.id === v0.id ? "checked" : ""} ${v.soldOut ? "disabled" : ""}>
+      <span>${esc(v.label)}${v.soldOut ? " · Sold out" : ""}</span><em>${money(v.price)}</em></label>`).join("")}</fieldset>` : "";
+  const lists = it.modifierLists.map((l, i) => {
+    const hint = l.min > 0
+      ? `<small class="req">Required${l.min > 1 ? " · choose " + l.min : ""}${l.max != null && l.max > l.min ? ", up to " + l.max : ""}</small>`
+      : `<small>${l.max === 1 ? "Optional" : l.max == null ? "Optional · choose any" : "Choose up to " + l.max}</small>`;
+    const type = l.max === 1 ? "radio" : "checkbox";
+    return `<fieldset data-list="${i}"><legend>${esc(l.name)} ${hint}</legend>${l.modifiers.map((m) => `
+      <label class="opt"><input type="${type}" name="l${i}" value="${esc(m.id)}" ${cur.mods.has(m.id) ? "checked" : ""}>
+      <span>${esc(m.name)}</span><em>${m.price ? "+" + money(m.price) : ""}</em></label>`).join("")}</fieldset>`;
+  }).join("");
+  $("#sheetBody").innerHTML = (img ? `<img class="hero" src="${esc(img)}" alt="">` : "") + (it.desc ? `<p class="desc">${esc(it.desc)}</p>` : "") + vars + lists;
+  $("#sheetBody").scrollTop = 0;
+  updateSheet();
+  openSheet("#itemSheet");
+}
+function updateSheet() {
+  cur.it.modifierLists.forEach((l, i) => {
+    if (l.max === 1 || l.max == null) return;
+    const n = l.modifiers.filter((m) => cur.mods.has(m.id)).length;
+    document.querySelectorAll(`[data-list="${i}"] input`).forEach((inp) => {
+      inp.disabled = !inp.checked && n >= l.max;
+      inp.closest(".opt").classList.toggle("dis", inp.disabled);
+    });
+  });
+  $("#qVal").textContent = cur.qty;
+  $("#qMinus").disabled = cur.qty <= 1;
+  $("#qPlus").disabled = cur.qty >= 20;
+  const mods = [...cur.mods];
+  const err = validateLine(cur.it, cur.varId, mods, cur.qty);
+  $("#sheetAdd").disabled = !!err;
+  $("#sheetAdd").textContent = err ? "Make required choices" : `Add · ${money(linePrice({ id: cur.varId, modifiers: mods, qty: cur.qty }))}`;
+}
+$("#sheetBody").addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.name === "var") cur.varId = t.value;
+  else if (t.type === "radio") {
+    const l = cur.it.modifierLists[Number(t.name.slice(1))];
+    l.modifiers.forEach((m) => cur.mods.delete(m.id));
+    cur.mods.add(t.value);
+  } else if (t.checked) cur.mods.add(t.value);
+  else cur.mods.delete(t.value);
+  updateSheet();
+});
+// Tapping a checked radio in an optional single-choice list clears it.
+$("#sheetBody").addEventListener("click", (e) => {
+  const t = e.target;
+  if (t.type !== "radio" || t.name === "var") return;
+  const l = cur.it.modifierLists[Number(t.name.slice(1))];
+  if (l.min === 0 && t.dataset.was === "1") { t.checked = false; cur.mods.delete(t.value); updateSheet(); }
+  document.querySelectorAll(`input[name="${t.name}"]`).forEach((r) => (r.dataset.was = r.checked ? "1" : ""));
+});
+$("#sheetBody").addEventListener("pointerdown", (e) => {
+  const inp = e.target.closest(".opt")?.querySelector("input[type=radio]");
+  if (inp) inp.dataset.was = inp.checked ? "1" : "";
+});
+$("#qMinus").onclick = () => { cur.qty = Math.max(1, cur.qty - 1); updateSheet(); };
+$("#qPlus").onclick = () => { cur.qty = Math.min(20, cur.qty + 1); updateSheet(); };
+$("#sheetAdd").onclick = () => { addLine(cur.varId, [...cur.mods], cur.qty); closeSheets(); };
+
+// ---- cart
+function addLine(varId, mods, qty) {
+  const k = keyOf(varId, mods);
+  const l = cart.get(k) ?? { id: varId, modifiers: [...mods].sort(), qty: 0 };
+  l.qty = Math.min(20, l.qty + qty);
+  cart.set(k, l);
+  saveCart();
+  render();
+}
+function bump(k, d) {
+  const l = cart.get(k);
+  if (!l) return;
+  l.qty += d;
+  if (l.qty <= 0) cart.delete(k); else l.qty = Math.min(20, l.qty);
+  saveCart();
+  render();
+  if (!cart.size) closeSheets();
+}
+function renderCart() {
+  const lines = [...cart.entries()];
+  const n = lines.reduce((s, [, l]) => s + l.qty, 0);
+  const total = lines.reduce((s, [, l]) => s + linePrice(l), 0);
+  $("#bar").hidden = !n;
+  document.body.classList.toggle("has-bar", !!n);
+  $("#barCount").textContent = `View order · ${n} item${n === 1 ? "" : "s"}`;
+  $("#barTotal").textContent = money(total);
+  $("#subtotal").textContent = money(total);
+  $("#lines").innerHTML = lines.map(([k, l]) => {
+    const it = byVar.get(l.id);
+    const v = it.variations.find((x) => x.id === l.id);
+    const mods = modsOf(it).filter((m) => l.modifiers.includes(m.id)).map((m) => m.name);
+    const sub = [it.variations.length > 1 ? v.label : "", ...mods].filter(Boolean).join(", ");
+    return `<div class="line"><div class="info"><strong>${esc(it.name)}</strong>${sub ? `<div class="mods">${esc(sub)}</div>` : ""}</div>
+      <div class="right"><span class="price">${money(linePrice(l))}</span>
+      <div class="step"><button data-bump="${esc(k)}" data-d="-1" aria-label="Remove one ${esc(it.name)}">−</button><span>${l.qty}</span><button data-bump="${esc(k)}" data-d="1" aria-label="Add one more ${esc(it.name)}" ${l.qty >= 20 ? "disabled" : ""}>+</button></div></div></div>`;
+  }).join("");
+}
+function render() { renderMenu(); renderCart(); }
+
+// ---- pickup time
+function renderPickup() {
+  const p = data.pickup;
+  if (!p.asap.available && pickupMode === "asap") pickupMode = "later";
+  $("#tAsap").disabled = !p.asap.available;
+  $("#tAsap").textContent = p.asap.available ? `ASAP (~${p.asap.minutes} min)` : "ASAP (closed)";
+  $("#tLater").disabled = !p.slots.length;
+  $("#tAsap").setAttribute("aria-pressed", pickupMode === "asap");
+  $("#tLater").setAttribute("aria-pressed", pickupMode === "later");
+  const sel = $("#slot");
+  const prev = sel.value;
+  sel.innerHTML = p.slots.map((s) => `<option value="${esc(s.at)}">${esc(s.label)}</option>`).join("");
+  if (p.slots.some((s) => s.at === prev)) sel.value = prev;
+  sel.hidden = pickupMode !== "later";
+  const none = !p.asap.available && !p.slots.length;
+  $("#checkout").disabled = none;
+  if (none) showMsg(`Online ordering is closed right now.${data.restaurant.phone ? " Please call us at " + fmtPhone(data.restaurant.phone) + "." : ""}`);
+}
+$("#tAsap").onclick = () => { pickupMode = "asap"; renderPickup(); };
+$("#tLater").onclick = () => { pickupMode = "later"; renderPickup(); };
+
+// ---- checkout
+const showMsg = (text, ok) => { $("#msg").innerHTML = text ? `<div class="banner ${ok ? "ok" : ""}">${esc(text)}</div>` : ""; };
+$("#checkout").onclick = async () => {
+  const name = $("#pname").value.trim();
+  if (!cart.size) return;
+  if (!name) { showMsg("Please add a name for pickup."); $("#pname").focus(); return; }
+  const btn = $("#checkout");
+  btn.disabled = true;
+  btn.textContent = "Opening secure checkout…";
+  showMsg("");
+  try {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: [...cart.values()].map((l) => ({ id: l.id, modifiers: l.modifiers, qty: l.qty })),
+        name, note: $("#pnote").value.trim(),
+        pickupAt: pickupMode === "later" ? $("#slot").value : null,
+      }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok && body.url) { location.href = body.url; return; }
+    if (res.status === 409) {
+      await loadMenu(true);
+      const dropped = pruneCart();
+      render(); renderPickup();
+      const changed = dropped.length ? " We updated your order: " + dropped.join(" ") : "";
+      showMsg((body.error || "The menu changed.") + changed);
+      if (!cart.size) $("#viewCart").focus();
+    } else showMsg(body.error || "Something went wrong. Please try again or call us.");
+  } catch {
+    showMsg("Couldn't reach the restaurant. Check your connection and try again.");
+  }
+  btn.textContent = "Checkout with Square";
+  btn.disabled = !cart.size;
+};
+
+// ---- sheets
+let lastFocus = null;
+function openSheet(sel) {
+  closeSheets(false);
+  lastFocus = document.activeElement;
+  $(sel).classList.add("open");
+  $("#scrim").classList.add("open");
+  document.body.classList.add("locked");
+  $(sel).querySelector(".x").focus({ preventScroll: true });
+}
+function closeSheets(restore = true) {
+  document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open"));
+  $("#scrim").classList.remove("open");
+  document.body.classList.remove("locked");
+  if (restore && lastFocus?.isConnected) lastFocus.focus({ preventScroll: true });
+}
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeSheets();
+  if (e.key === "Tab") { // keep focus inside an open sheet
+    const s = document.querySelector(".sheet.open");
+    if (!s) return;
+    const f = [...s.querySelectorAll("button, input, select, textarea, a[href]")].filter((x) => !x.disabled && x.offsetParent);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f.at(-1).focus(); }
+    else if (!e.shiftKey && document.activeElement === f.at(-1)) { e.preventDefault(); f[0].focus(); }
+  }
+});
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-inc],[data-dec],[data-open],[data-bump],[data-close],#scrim");
+  if (!t) return;
+  if (t.dataset.inc) { const it = byItem.get(t.dataset.inc); addLine(it.variations[0].id, [], 1); focusStep(t.dataset.inc); }
+  else if (t.dataset.dec) { const it = byItem.get(t.dataset.dec); bump(keyOf(it.variations[0].id, []), -1); focusStep(t.dataset.dec); }
+  else if (t.dataset.open) openItem(byItem.get(t.dataset.open));
+  else if (t.dataset.bump) bump(t.dataset.bump, Number(t.dataset.d));
+  else closeSheets();
+});
+// After a re-render, keep keyboard focus on the same item's stepper.
+function focusStep(id) {
+  const sel = `[data-inc="${CSS.escape(id)}"]`;
+  (document.querySelector(sel) || document.querySelector(`[data-dec="${CSS.escape(id)}"]`))?.focus({ preventScroll: true });
+}
+$("#viewCart").onclick = () => { renderPickup(); openSheet("#cartSheet"); };
+$("#pname").addEventListener("input", () => { if ($("#pname").value.trim()) showMsg(""); });
+
+// ---- boot
+async function loadMenu(fresh) {
+  const res = await fetch("/api/menu", fresh ? { cache: "reload" } : {});
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || !body.categories) throw new Error(body.error || "The menu is unavailable right now. Please call us to order.");
+  data = body;
+  byItem = new Map(); byVar = new Map();
+  for (const c of data.categories) for (const it of c.items) {
+    byItem.set(it.id, it);
+    for (const v of it.variations) byVar.set(v.id, it);
+  }
+}
+(async function boot() {
+  const params = new URLSearchParams(location.search);
+  if (params.get("status") === "success") {
+    try { localStorage.removeItem(CART_KEY); } catch {}
+    $("#topMsg").innerHTML = `<div class="banner ok">Thank you! Your order is in. Square will email or text your receipt.</div>`;
+    params.delete("status");
+    history.replaceState(null, "", location.pathname + (params.size ? "?" + params : "") + location.hash);
+  } else loadCart();
+  try {
+    await loadMenu();
+  } catch (e) {
+    $("#menu").innerHTML = `<p class="error">${esc(e.message)}</p>`;
+    return;
+  }
+  const dropped = pruneCart();
+  if (dropped.length) $("#topMsg").innerHTML = `<div class="banner">Some items in your saved order changed: ${esc(dropped.join(" "))}</div>`;
+  renderHeader();
+  render();
+  renderPickup();
+})();
+</script>
+</body>
+</html>

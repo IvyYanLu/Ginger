@@ -9,8 +9,8 @@
     "dump": "node scripts/dump-catalog.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
-    "esbuild": "^0.24.0",
-    "wrangler": "^4.0.0"
+    "@playwright/test": "1.63.0",
+    "esbuild": "^0.28.2",
+    "wrangler": "^4.168.0"
   }
 }
