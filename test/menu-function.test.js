@@ -21,6 +21,7 @@ test("GET /api/menu returns the normalized menu with cache header; caches 60 s",
   const body = await res.json();
   assert.equal(body.restaurant.name, "Ginger Japanese Restaurant");
   assert.equal(body.categories[0].name, "Appetizers");
+  assert.match(body.restaurant.today, /^(MON|TUE|WED|THU|FRI|SAT|SUN)$/);
   assert.equal(typeof body.pickup.asap.available, "boolean");
   assert.ok(Array.isArray(body.pickup.slots));
   await onRequestGet({ env });

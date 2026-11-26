@@ -37,7 +37,19 @@ header h1 { font-size: 30px; line-height: 1.1; }
 .direct b { display: block; font: 600 16px/1.25 Fraunces, Georgia, serif; color: var(--ginger-deep); }
 .direct span { font-size: 13px; }
 .direct .seal { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--ginger-deep); color: #fff; display: grid; place-items: center; font-weight: 600; }
-.hours { font-size: 13px; color: var(--muted); margin-top: 10px; }
+.hours { margin-top: 12px; font-size: 14px; }
+.hours summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.hours summary::-webkit-details-marker { display: none; }
+.hours summary b { font-weight: 600; }
+.hours summary u { text-decoration: none; color: var(--ginger-deep); font-size: 13px; font-weight: 500; white-space: nowrap; }
+.hours summary u::after { content: " ▾"; }
+.hours[open] summary u::after { content: " ▴"; }
+.hours table { margin-top: 10px; border-collapse: collapse; width: 100%; max-width: 360px; font-size: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.hours th, .hours td { text-align: left; vertical-align: top; padding: 8px 12px; border-top: 1px solid var(--line); }
+.hours tr:first-child th, .hours tr:first-child td { border-top: 0; }
+.hours th { font-weight: 500; color: var(--muted); width: 40%; }
+.hours tr.today th, .hours tr.today td { font-weight: 600; color: var(--ink); background: var(--ginger-soft); }
+.hours td span { display: block; }
 .banner { background: var(--ginger-soft); color: var(--ginger-deep); border-radius: 12px; padding: 12px 14px; font-weight: 500; margin-top: 14px; }
 .banner.ok { background: #e3f0e7; color: var(--ok); }
 
@@ -125,7 +137,7 @@ footer strong { color: var(--ink); }
   <div class="meta" id="rMeta"></div>
   <div class="status" id="rStatus" hidden><i></i><span></span></div>
   <div class="direct"><div class="seal" aria-hidden="true">$</div><div><b>Order direct, pay less</b><span>Our in-restaurant menu prices. No delivery-app markups or service fees.</span></div></div>
-  <div class="hours" id="rHours"></div>
+  <details class="hours" id="rHours" hidden></details>
   <div id="topMsg" role="status"></div>
 </header>
 <nav aria-label="Menu categories"><div class="wrap" id="nav"></div></nav>
@@ -263,13 +275,26 @@ function renderHeader() {
   if (r.name) { $("#rName").textContent = r.name; document.title = `${r.name} · Order Pickup`; }
   const tel = (r.phone || "").replace(/[^\d+]/g, "");
   $("#rMeta").innerHTML = [esc(r.address), r.phone ? `<a href="tel:${esc(tel)}">${esc(fmtPhone(r.phone))}</a>` : ""].filter(Boolean).join(" · ");
-  $("#rHours").textContent = r.hours || "";
+  renderHours(r);
   const p = data.pickup;
   const st = $("#rStatus");
   st.hidden = false;
   st.classList.toggle("closed", !p.asap.available);
   st.querySelector("span").textContent = p.asap.available ? `Open · Pickup in about ${p.asap.minutes} min`
     : p.slots.length ? `Closed now · Schedule a pickup from ${p.slots[0].label.toLowerCase()}` : "Online ordering is closed";
+}
+
+// Today's hours in one line ("11am – 2:30pm, then 4pm – 9:30pm") plus a
+// tap-to-open table of the week with today's row highlighted.
+function renderHours(r) {
+  const rows = r.hoursTable || [];
+  const el = $("#rHours");
+  el.hidden = !rows.length;
+  if (!rows.length) return;
+  const todayRow = rows.find((g) => g.days.includes(r.today));
+  const todayText = !todayRow ? "" : todayRow.times.length ? todayRow.times.join(", then ") : "Closed";
+  el.innerHTML = `<summary>${todayText ? `<span><b>Today</b> ${esc(todayText)}</span>` : ""}<u>All hours</u></summary>
+    <table><tbody>${rows.map((g) => `<tr class="${g === todayRow ? "today" : ""}"><th scope="row">${esc(g.label)}</th><td>${g.times.length ? g.times.map((t) => `<span>${esc(t)}</span>`).join("") : "Closed"}</td></tr>`).join("")}</tbody></table>`;
 }
 
 // ---- menu

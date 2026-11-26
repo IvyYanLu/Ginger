@@ -133,8 +133,13 @@ describe("normalizeMenu", () => {
     assert.deepEqual(menu.restaurant, {
       name: "Ginger Japanese Restaurant", address: "1 Main St, Bedford, MA 01730", phone: "+17815550100",
       hours: "Mon–Fri 11am–2:30pm, 4pm–9:30pm · Sat 11am–10pm · Sun 12pm–10pm",
+      hoursTable: [
+        { days: ["MON", "TUE", "WED", "THU", "FRI"], label: "Mon–Fri", times: ["11am – 2:30pm", "4pm – 9:30pm"] },
+        { days: ["SAT"], label: "Sat", times: ["11am – 10pm"] },
+        { days: ["SUN"], label: "Sun", times: ["12pm – 10pm"] },
+      ],
     });
-    assert.deepEqual(restaurantInfo({}), { name: "", address: "", phone: "", hours: "" });
+    assert.deepEqual(restaurantInfo({}), { name: "", address: "", phone: "", hours: "", hoursTable: [] });
   });
 });
 
