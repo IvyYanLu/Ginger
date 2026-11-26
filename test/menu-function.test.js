@@ -1,7 +1,6 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { onRequestGet } from "../functions/api/menu.js";
-import { resetMenuCache } from "../lib/square.js";
+import { menuGet as onRequestGet, resetMenuCache } from "./helpers/bundle.js";
 import { objects, location, env } from "./fixtures/catalog.js";
 
 beforeEach(() => resetMenuCache());

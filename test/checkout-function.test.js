@@ -1,7 +1,6 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { onRequestPost } from "../functions/api/checkout.js";
-import { resetMenuCache } from "../lib/square.js";
+import { checkoutPost as onRequestPost, resetMenuCache } from "./helpers/bundle.js";
 import { objects, location, env } from "./fixtures/catalog.js";
 
 const FULL_ENV = { ...env, BUSY_PREP_TIME: "FRI-SAT 17:00-19:00 PT30M", PICKUP_CUTOFF: "MON-FRI:10,SAT-SUN:15" };

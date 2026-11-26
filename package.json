@@ -6,7 +6,8 @@
     "dev": "wrangler pages dev public",
     "test": "node --test 'test/**/*.test.js'",
     "test:e2e": "playwright test --trace off",
-    "dump": "node scripts/dump-catalog.mjs"
+    "dump": "node scripts/dump-catalog.mjs",
+    "test:all": "npm test && npm run test:e2e"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
