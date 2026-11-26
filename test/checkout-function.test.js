@@ -66,6 +66,7 @@ test("ASAP order: exact CreatePaymentLink request", async (t) => {
     checkout_options: {
       redirect_url: "https://order.example/?status=success", ask_for_shipping_address: false, allow_tipping: true,
       accepted_payment_methods: { cash_app_pay: true, afterpay_clearpay: false, bank_account: false },
+      enable_coupon: false, enable_loyalty: false,
     },
     payment_note: "Pickup for: Alex — No sesame please",
   });

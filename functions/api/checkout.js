@@ -57,6 +57,8 @@ export function paymentLinkBody({ env, lines, name, note, pickup, idempotencyKey
       // Afterpay (installments) off by the owner's choice. Apple Pay and
       // Google Pay follow the seller's settings.
       accepted_payment_methods: { cash_app_pay: true, afterpay_clearpay: false, bank_account: false },
+      enable_coupon: false,  // hide Square's coupon box
+      enable_loyalty: false, // hide Square's loyalty/rewards box
     },
     payment_note: `Pickup for: ${name}${note ? " — " + note : ""}`.slice(0, 500),
   };
