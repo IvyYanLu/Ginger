@@ -73,11 +73,11 @@ test("ASAP order: exact CreatePaymentLink request", async (t) => {
 
 test("scheduled order: SCHEDULED with pickup_at and prep for that time", async (t) => {
   const calls = setup(t);
-  const res = await post({ ...good, note: "", pickupAt: "2026-11-28T16:20:00.000Z" }); // Sat 11:20am
+  const res = await post({ ...good, note: "", pickupAt: "2026-11-28T16:00:00.000Z" }); // Sat 11:00am (opening)
   assert.equal(res.status, 200);
   const sent = JSON.parse(calls.find((c) => c.url.endsWith("/payment-links")).init.body);
   assert.deepEqual(sent.order.fulfillments[0].pickup_details, {
-    recipient: { display_name: "Alex" }, schedule_type: "SCHEDULED", pickup_at: "2026-11-28T16:20:00.000Z", prep_time_duration: "PT20M",
+    recipient: { display_name: "Alex" }, schedule_type: "SCHEDULED", pickup_at: "2026-11-28T16:00:00.000Z", prep_time_duration: "PT20M",
   });
   assert.equal(sent.payment_note, "Pickup for: Alex");
 });

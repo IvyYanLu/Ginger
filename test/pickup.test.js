@@ -55,10 +55,10 @@ describe("pickupOptions (Fri 2026-11-27, America/New_York)", () => {
     assert.deepEqual(o.asap, { available: true, minutes: 30 });
     assert.deepEqual(o.slots[0], { at: "2026-11-27T23:00:00.000Z", label: "Today 6pm" });
     const l = labels(o);
-    assert.equal(l[l.indexOf("Tomorrow 11:20am") - 1], "Today 9:20pm");
+    assert.equal(l[l.indexOf("Tomorrow 11am") - 1], "Today 9:20pm");
     assert.ok(!l.includes("Today 9:30pm"));
     assert.ok(l.includes("Tomorrow 9:45pm") && !l.includes("Tomorrow 10pm"));
-    assert.equal(l.find((x) => x.startsWith("Sun")), "Sun 12:20pm");
+    assert.equal(l.find((x) => x.startsWith("Sun")), "Sun 12pm");
     assert.ok(!l.some((x) => x.startsWith("Mon")), "only today + 2 days");
   });
   test("lunch: 2:30pm is the last lunch pickup (no cutoff mid-day)", () => {
@@ -66,22 +66,22 @@ describe("pickupOptions (Fri 2026-11-27, America/New_York)", () => {
     assert.deepEqual(o.asap, { available: true, minutes: 20 });
     const l = labels(o);
     assert.equal(l[0], "Today 12:30pm");
-    assert.equal(l[l.indexOf("Today 2:30pm") + 1], "Today 4:20pm");
+    assert.equal(l[l.indexOf("Today 2:30pm") + 1], "Today 4pm");
   });
-  test("2:25pm: ASAP unavailable during the break, next slot 4:20pm", () => {
+  test("2:25pm: ASAP unavailable during the break, next slot 4pm", () => {
     const o = opts("2026-11-27T19:25:00Z");
     assert.equal(o.asap.available, false);
-    assert.deepEqual(labels(o).slice(0, 2), ["Today 4:20pm", "Today 4:30pm"]);
+    assert.deepEqual(labels(o).slice(0, 2), ["Today 4pm", "Today 4:15pm"]);
   });
-  test("before opening: schedule from 11:20am", () => {
+  test("before opening: schedule from 11am (opening)", () => {
     const o = opts("2026-11-27T14:00:00Z"); // 9am
     assert.equal(o.asap.available, false);
-    assert.deepEqual(labels(o).slice(0, 3), ["Today 11:20am", "Today 11:30am", "Today 11:45am"]);
+    assert.deepEqual(labels(o).slice(0, 3), ["Today 11am", "Today 11:15am", "Today 11:30am"]);
   });
-  test("Saturday 9:40pm: past last pickup, next is Sunday 12:20pm", () => {
+  test("Saturday 9:40pm: past last pickup, next is Sunday 12pm", () => {
     const o = opts("2026-11-29T02:40:00Z");
     assert.equal(o.asap.available, false);
-    assert.equal(labels(o)[0], "Tomorrow 12:20pm");
+    assert.equal(labels(o)[0], "Tomorrow 12pm");
   });
   test("ASAP needs now + prep within the window", () => {
     assert.equal(opts("2026-11-28T02:00:00Z").asap.available, true);  // Fri 9:00pm + 20 = 9:20
