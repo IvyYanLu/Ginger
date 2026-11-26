@@ -63,7 +63,10 @@ test("ASAP order: exact CreatePaymentLink request", async (t) => {
         recipient: { display_name: "Alex" }, schedule_type: "ASAP", prep_time_duration: "PT30M", note: "No sesame please",
       } }],
     },
-    checkout_options: { redirect_url: "https://order.example/?status=success", ask_for_shipping_address: false, allow_tipping: true },
+    checkout_options: {
+      redirect_url: "https://order.example/?status=success", ask_for_shipping_address: false, allow_tipping: true,
+      accepted_payment_methods: { cash_app_pay: true, afterpay_clearpay: false, bank_account: false },
+    },
     payment_note: "Pickup for: Alex — No sesame please",
   });
   assert.ok(!JSON.stringify(sent).includes("base_price_money"));

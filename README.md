@@ -35,11 +35,12 @@ The stack is Cloudflare Pages plus Pages Functions. There are no runtime npm dep
 
    Square prices the order from its own catalog: no prices are sent, and taxes are applied automatically.
 3. The customer pays on Square's page and is sent back to `SITE_URL/?status=success`.
+   Payment methods on the checkout page: card, Apple Pay and Google Pay (per the seller's Square settings), and **Cash App Pay**. **Afterpay is off.** **ACH bank transfer is off** (`bank_account: false`): ACH settles days later, so the customer being sent back would not mean the order is paid, and Square turns ACH on by default for eligible sellers.
 4. The order carries a **PICKUP fulfillment**, which is what makes Square send it to Order Manager / KDS and auto-print it. It is either `ASAP` or `SCHEDULED` with `pickup_at`.
 
 ### Square API version
 
-Every request sends `Square-Version: 2026-08-19`, set as `SQUARE_VERSION` in `lib/square.js`. Before changing it, read Square's changelog for the Catalog, Orders and Checkout APIs.
+Every request sends `Square-Version: 2026-11-18`, set as `SQUARE_VERSION` in `lib/square.js`. Before changing it, read Square's changelog for the Catalog, Orders and Checkout APIs.
 
 ## Environment variables
 
@@ -158,6 +159,12 @@ Then run `node scripts/dump-catalog.mjs` and check that the report shows no unex
    - **Automatically print new orders**
 3. Assign that profile to **only one device**. Otherwise every order prints once per device.
 
+### Staff: completing orders
+
+Square's docs say payment-link orders that carry a fulfillment **stay OPEN after payment and never complete on their own**. Staff mark each one Ready and then Completed in **Order Manager** (or on the KDS), as they do for other online orders.
+
+API-created payment links are single-use, and they don't appear in the Dashboard's Payment Links list. The orders they create do appear in Order Manager.
+
 ## Go-live checklist (sandbox first, then one real order)
 
 - [ ] The menu shows the right categories in the right order; no alcohol appears.
@@ -168,6 +175,8 @@ Then run `node scripts/dump-catalog.mjs` and check that the report shows no unex
   - comes back to the thank-you banner,
   - appears in **Order Manager** with the right items, **modifiers**, name, note and pickup time,
   - **prints automatically** on the kitchen printer.
+- [ ] The checkout page offers Cash App Pay and does **not** offer Afterpay or bank transfer (ACH). If Square rejects the link because the seller isn't eligible for Cash App Pay, the site shows "please call us" and logs the error; in that case remove `cash_app_pay` from `functions/api/checkout.js`.
+- [ ] Staff can mark an online order Ready, then Completed, in Order Manager.
 - [ ] A **scheduled** order (e.g. tomorrow 11:00am) appears as a scheduled pickup. **Note when it prints:** at payment, or near the pickup time.
 - [ ] Ordering after the last pickup offers only scheduled times.
 - [ ] On a phone (iOS Safari and Android Chrome): add items, use the options sheet, check out, and pay with Apple Pay / Google Pay.

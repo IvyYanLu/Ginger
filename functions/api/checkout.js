@@ -52,6 +52,11 @@ export function paymentLinkBody({ env, lines, name, note, pickup, idempotencyKey
       redirect_url: `${env.SITE_URL}/?status=success`,
       ask_for_shipping_address: false,
       allow_tipping: true,
+      // Instant methods only. ACH is on by default for eligible sellers but
+      // settles days later, so the redirect would not mean "paid": off.
+      // Afterpay (installments) off by the owner's choice. Apple Pay and
+      // Google Pay follow the seller's settings.
+      accepted_payment_methods: { cash_app_pay: true, afterpay_clearpay: false, bank_account: false },
     },
     payment_note: `Pickup for: ${name}${note ? " — " + note : ""}`.slice(0, 500),
   };
