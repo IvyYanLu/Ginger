@@ -139,8 +139,10 @@ export function buildReport(objects, location, locationId) {
 
 async function main() {
   const env = loadEnv();
+  const which = env.SQUARE_ENV === "production" ? "PRODUCTION" : "sandbox";
+  console.log(`Square ${which} · location ${env.SQUARE_LOCATION_ID}`);
   const [objects, location] = await Promise.all([listCatalog(env), getLocation(env)]);
-  console.log(`Square ${env.SQUARE_ENV === "production" ? "PRODUCTION" : "sandbox"} · ${objects.length} catalog objects\n`);
+  console.log(`${objects.length} catalog objects\n`);
   console.log(buildReport(objects, location, env.SQUARE_LOCATION_ID));
 }
 
@@ -148,6 +150,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main().catch((e) => {
     console.error(e.message); // message only: never the env/token
     if (e.errors) console.error(JSON.stringify(e.errors, null, 2));
+    if (e.status === 401) console.error("\nSquare rejected the token. Check that SQUARE_ENV matches where the token came from (sandbox or production), and that the token was pasted whole, with no quotes or spaces.");
     process.exit(1);
   });
 }
