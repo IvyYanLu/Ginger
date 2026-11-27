@@ -138,6 +138,20 @@ Vercel Hobby is not an option: its terms forbid commercial use.
 3. The site needs `ITEMS_READ`, `MERCHANT_PROFILE_READ`, `ORDERS_READ`, `ORDERS_WRITE` and `PAYMENTS_WRITE`. A personal access token can't be narrowed to these (only OAuth tokens have scopes): it has full access to the account. Only the person deploying should see it, and if it leaks, replace it on the Credentials page.
 4. Store the token only in `.dev.vars` or as a Cloudflare Secret. Never commit it, paste it into chat, or put it in a URL.
 
+### Copy the real menu into the sandbox
+
+To test with the real menu, copy the production catalog into the sandbox:
+
+```sh
+node scripts/copy-catalog.mjs
+node scripts/copy-catalog.mjs --apply
+```
+
+- It reads `.dev.vars.production` (source, only read) and `.dev.vars.sandbox` (target). Both files are git-ignored.
+- It copies taxes, categories (including the POS menu groups, so lunch-only works), modifier lists and items. Photos are not copied. It also copies the location's name, address, phone, time zone and hours onto the sandbox location.
+- Without `--apply` it is a dry run that changes nothing.
+- It refuses to write unless the target has `SQUARE_ENV=sandbox`, and refuses if the sandbox already has items (`--force` copies anyway and duplicates them).
+
 ### Seed the sandbox
 
 The sandbox has its own, empty catalog. Open it from **Developer Dashboard → Sandbox test accounts → Square Dashboard**, then create:
