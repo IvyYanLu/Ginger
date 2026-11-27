@@ -37,11 +37,11 @@ test("header, categories and no horizontal scroll at 375px", async ({ page }) =>
   await expect(page.locator("#rMeta")).toContainText("1 Main St, Bedford, MA 01730");
   await expect(page.getByRole("link", { name: "(781) 555-0100" })).toHaveAttribute("href", "tel:+17815550100");
   const hours = page.locator("#rHours");
-  await expect(hours.locator("summary")).toHaveText("Today 11am – 2:30pm, then 4pm – 9:30pmAll hours");
+  await expect(hours.locator("summary")).toHaveText("Today 11am – 2:30pm, then 4pm – 10pmAll hours");
   await expect(hours.locator("table")).toBeHidden();
   await hours.getByText("All hours").click();
-  await expect(hours.locator("tr")).toHaveText(["Mon–Fri11am – 2:30pm4pm – 9:30pm", "Sat11am – 10pm", "Sun12pm – 10pm"]);
-  await expect(hours.locator("tr.today th")).toHaveText("Mon–Fri");
+  await expect(hours.locator("tr")).toHaveText(["Mon–Thu11am – 2:30pm4pm – 9:30pm", "Fri11am – 2:30pm4pm – 10pm", "Sat11am – 10pm", "Sun12pm – 9:30pm"]);
+  await expect(hours.locator("tr.today th")).toHaveText("Fri");
   await expect(page.locator("nav a")).toHaveText(["Appetizers", "Entrées", "Maki", "Other", "Desserts", "Drinks"]);
   await expect(page.getByText("House Sake")).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);

@@ -21,10 +21,10 @@ export const location = {
   business_hours: { periods: [
     ...["MON", "TUE", "WED", "THU", "FRI"].flatMap((d) => [
       { day_of_week: d, start_local_time: "11:00:00", end_local_time: "14:30:00" },
-      { day_of_week: d, start_local_time: "16:00:00", end_local_time: "21:30:00" },
+      { day_of_week: d, start_local_time: "16:00:00", end_local_time: d === "FRI" ? "22:00:00" : "21:30:00" },
     ]),
     { day_of_week: "SAT", start_local_time: "11:00:00", end_local_time: "22:00:00" },
-    { day_of_week: "SUN", start_local_time: "12:00:00", end_local_time: "22:00:00" },
+    { day_of_week: "SUN", start_local_time: "12:00:00", end_local_time: "21:30:00" },
   ] },
 };
 

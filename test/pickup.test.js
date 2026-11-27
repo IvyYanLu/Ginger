@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { parseDuration, parseCutoff, parseBusy, pickupOptions, pickupSettings, prepAt, localToUtc, wallClock } from "../lib/pickup.js";
 import { location, env } from "./fixtures/catalog.js";
 
-const settings = pickupSettings({ ...env, BUSY_PREP_TIME: "FRI-SAT 17:00-19:00 PT30M", PICKUP_CUTOFF: "MON-FRI:10,SAT-SUN:15", SCHEDULE_DAYS: "3" });
+const settings = pickupSettings({ ...env, BUSY_PREP_TIME: "FRI-SAT 17:00-19:00 PT30M", PICKUP_CUTOFF: "MON-THU:10,FRI-SAT:15,SUN:10", SCHEDULE_DAYS: "3" });
 const at = (iso) => Date.parse(iso);
 const opts = (iso) => pickupOptions(location, settings, at(iso));
 const labels = (o) => o.slots.map((s) => s.label);
@@ -20,6 +20,7 @@ describe("parsers", () => {
   test("parseCutoff", () => {
     assert.deepEqual(parseCutoff("MON-FRI:10,SAT-SUN:15"), { MON: 10, TUE: 10, WED: 10, THU: 10, FRI: 10, SAT: 15, SUN: 15 });
     assert.deepEqual(parseCutoff("fri-mon:5"), { FRI: 5, SAT: 5, SUN: 5, MON: 5 });
+    assert.deepEqual(parseCutoff("MON-THU:10,FRI-SAT:15,SUN:10"), { MON: 10, TUE: 10, WED: 10, THU: 10, FRI: 15, SAT: 15, SUN: 10 });
     assert.deepEqual(parseCutoff(""), {});
   });
   test("parseBusy", () => {
@@ -50,15 +51,16 @@ describe("busy prep", () => {
 });
 
 describe("pickupOptions (Fri 2026-11-27, America/New_York)", () => {
-  test("busy Friday 5:30pm: ASAP 30 min, first slot 6pm, last 9:20pm, then Sat and Sun", () => {
+  test("busy Friday 5:30pm: ASAP 30 min, first slot 6pm, last 9:45pm, then Sat and Sun", () => {
     const o = opts("2026-11-27T22:30:00Z");
     assert.deepEqual(o.asap, { available: true, minutes: 30 });
     assert.deepEqual(o.slots[0], { at: "2026-11-27T23:00:00.000Z", label: "Today 6pm" });
     const l = labels(o);
-    assert.equal(l[l.indexOf("Tomorrow 11am") - 1], "Today 9:20pm");
-    assert.ok(!l.includes("Today 9:30pm"));
+    assert.equal(l[l.indexOf("Tomorrow 11am") - 1], "Today 9:45pm"); // Fri closes 10pm
+    assert.ok(!l.includes("Today 10pm"));
     assert.ok(l.includes("Tomorrow 9:45pm") && !l.includes("Tomorrow 10pm"));
     assert.equal(l.find((x) => x.startsWith("Sun")), "Sun 12pm");
+    assert.equal(l.findLast((x) => x.startsWith("Sun")), "Sun 9:20pm"); // Sun closes 9:30pm
     assert.ok(!l.some((x) => x.startsWith("Mon")), "only today + 2 days");
   });
   test("lunch: 2:30pm is the last lunch pickup (no cutoff mid-day)", () => {
@@ -84,8 +86,10 @@ describe("pickupOptions (Fri 2026-11-27, America/New_York)", () => {
     assert.equal(labels(o)[0], "Tomorrow 12pm");
   });
   test("ASAP needs now + prep within the window", () => {
-    assert.equal(opts("2026-11-28T02:00:00Z").asap.available, true);  // Fri 9:00pm + 20 = 9:20
-    assert.equal(opts("2026-11-28T02:01:00Z").asap.available, false); // 9:01pm
+    assert.equal(opts("2026-11-27T02:00:00Z").asap.available, true);  // Thu 9:00pm + 20 = 9:20
+    assert.equal(opts("2026-11-27T02:01:00Z").asap.available, false); // Thu 9:01pm
+    assert.equal(opts("2026-11-28T02:25:00Z").asap.available, true);  // Fri 9:25pm + 20 = 9:45
+    assert.equal(opts("2026-11-28T02:26:00Z").asap.available, false); // Fri 9:26pm
   });
   test("summer time (EDT)", () => {
     const o = pickupOptions(location, settings, at("2026-07-10T21:30:00Z")); // Fri 5:30pm EDT

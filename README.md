@@ -55,7 +55,7 @@ Every request sends `Square-Version: 2026-11-18`, set as `SQUARE_VERSION` in `li
 | `CATEGORY_ORDER` | | Display order; `*` = all other categories A–Z. Currently `Appetizers,*,Desserts,Drinks` |
 | `PREP_TIME` | | ISO 8601 duration, default `PT20M` |
 | `BUSY_PREP_TIME` | | Longer prep in busy windows, in the restaurant's time zone. Currently `FRI-SAT 17:00-19:00 PT30M`. Separate several rules with `;` |
-| `PICKUP_CUTOFF` | | Minutes before each day's **final** close when the last pickup is offered. Currently `MON-FRI:10,SAT-SUN:15` (9:20pm / 9:45pm). Mid-day breaks have no cutoff (lunch ends 2:30) |
+| `PICKUP_CUTOFF` | | Minutes before each day's **final** close when the last pickup is offered. Currently `MON-THU:10,FRI-SAT:15,SUN:10`: last pickup 9:20pm Mon–Thu and Sun (close 9:30), 9:45pm Fri–Sat (close 10). Mid-day breaks have no cutoff (lunch ends 2:30) |
 | `SCHEDULE_DAYS` | | Today plus the next N−1 days. Default `3` |
 
 ### Pickup rules

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { checkoutPost as onRequestPost, resetMenuCache } from "./helpers/bundle.js";
 import { objects, location, env } from "./fixtures/catalog.js";
 
-const FULL_ENV = { ...env, BUSY_PREP_TIME: "FRI-SAT 17:00-19:00 PT30M", PICKUP_CUTOFF: "MON-FRI:10,SAT-SUN:15" };
+const FULL_ENV = { ...env, BUSY_PREP_TIME: "FRI-SAT 17:00-19:00 PT30M", PICKUP_CUTOFF: "MON-THU:10,FRI-SAT:15,SUN:10" };
 const FRI_530PM = Date.parse("2026-11-27T22:30:00Z");
 const SAT_940PM = Date.parse("2026-11-29T02:40:00Z");
 
