@@ -243,3 +243,17 @@ test("lunch items in the cart limit pickup to lunch times", async ({ page }) => 
   await expect(page.locator("#slot option")).toHaveCount(lunchSlots.length);
   expect(await page.locator("#slot option").evaluateAll((os) => os.map((o) => o.value))).toEqual(lunchSlots.map((s) => s.at));
 });
+
+test("back to top: appears after scrolling, sits above the order bar, returns to the top", async ({ page }) => {
+  await page.goto("/");
+  const top = page.getByRole("button", { name: "Back to top" });
+  await expect(top).toBeHidden();
+  await card(page, "Edamame").getByRole("button", { name: "Add Edamame" }).click();
+  await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+  await expect(top).toBeVisible();
+  const [t, b] = await Promise.all([top.boundingBox(), page.locator("#viewCart").boundingBox()]);
+  expect(t.y + t.height).toBeLessThanOrEqual(b.y);
+  await top.click();
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+  await expect(top).toBeHidden();
+});

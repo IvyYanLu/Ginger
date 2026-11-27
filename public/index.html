@@ -175,6 +175,15 @@ nav.cats .lbl { display: none; }
 .bar button { width: 100%; max-width: 560px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; border: 0; border-radius: 6px; padding: 16px 18px; background: var(--red); color: #fff; font-weight: 600; font-size: 15px; box-shadow: 0 8px 24px rgba(161,61,45,.3); }
 body.has-bar .foot { padding-bottom: 96px; }
 
+/* ---- back to top (sits above the order bar when it shows) */
+/* Left on phones so it never covers a card's Add button (right side). */
+.totop { position: fixed; left: var(--gutter); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 9; display: inline-flex; align-items: center; gap: 6px; height: 44px; min-width: 44px; padding: 0 14px; justify-content: center; border: 1px solid var(--line); border-radius: 22px; background: var(--white); color: var(--ink); font-size: 13px; font-weight: 600; box-shadow: 0 4px 16px rgba(37,42,36,.14); opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .2s, transform .2s, visibility 0s .2s; }
+.totop.show { opacity: 1; visibility: visible; transform: none; transition: opacity .2s, transform .2s; }
+.totop:hover { border-color: #c9c6bb; }
+.totop span { font-size: 16px; line-height: 1; }
+.totop b { font-weight: 600; display: none; }
+body.has-bar .totop { bottom: calc(86px + env(safe-area-inset-bottom)); }
+
 /* ---- footer */
 .foot { background: var(--ink); color: #fff; padding: 36px 0 32px; }
 .fgrid { display: grid; gap: 28px; }
@@ -289,6 +298,9 @@ legend small.req { color: var(--red); background: var(--blush); padding: 3px 8px
   .bag { display: block; }
   .side { position: sticky; top: calc(var(--navh) + 20px); }
   .bar { display: none; }
+  body.has-bar .totop { bottom: 24px; }
+  .totop { bottom: 24px; left: auto; right: var(--gutter); }
+  .totop b { display: inline; }
   body.has-bar .foot { padding-bottom: 32px; }
   .fgrid { grid-template-columns: 1.3fr 1.1fr 1fr; }
 }
@@ -307,7 +319,7 @@ legend small.req { color: var(--red); background: var(--blush); padding: 3px 8px
   .sec, .meal { scroll-margin-top: 24px; }
 }
 @media (max-width: 359px) { .tel { display: none; } .bagbtn { margin-left: auto; } }
-@media (prefers-reduced-motion: reduce) { .sheet, .scrim { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { .sheet, .scrim, .totop { transition: none !important; } }
 </style>
 </head>
 <body>
@@ -403,6 +415,7 @@ legend small.req { color: var(--red); background: var(--blush); padding: 3px 8px
   </div>
 </footer>
 
+<button class="totop" id="toTop" aria-label="Back to top" tabindex="-1"><span aria-hidden="true">↑</span><b aria-hidden="true">Top</b></button>
 <div class="bar" id="bar" hidden><button id="viewCart" aria-haspopup="dialog"><span id="barCount"></span><span id="barTotal"></span></button></div>
 <div class="scrim" id="scrim"></div>
 
@@ -695,11 +708,22 @@ function goToCat(id) {
   const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
   sec.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
 }
+// Back to top: shows once the hero is out of view; returns focus to the top too.
+function toggleTop() {
+  const show = scrollY > Math.max(600, innerHeight);
+  $("#toTop").classList.toggle("show", show);
+  $("#toTop").tabIndex = show ? 0 : -1;
+}
+$("#toTop").onclick = () => {
+  const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
+  $(".wm").focus({ preventScroll: true });
+};
 let spyQueued = false;
 addEventListener("scroll", () => {
   if (spyQueued) return;
   spyQueued = true;
-  requestAnimationFrame(() => { spyQueued = false; spyCat(); });
+  requestAnimationFrame(() => { spyQueued = false; spyCat(); toggleTop(); });
 }, { passive: true });
 $("#nav").addEventListener("click", (e) => {
   const a = e.target.closest("a[href^='#']");
