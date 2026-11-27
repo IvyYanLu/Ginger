@@ -1,6 +1,5 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync } from "node:fs";
 import { validateLine } from "../lib/square.js";
 
 const item = {
@@ -29,24 +28,10 @@ export const cases = [
   ["above max (checkbox)", [item, "V8", ["W", "T1", "T2", "T3"], 1], /at most 2 for Toppings/],
 ];
 
-function run(fn) {
+test("validateLine", () => {
   for (const [name, args, want] of cases) {
-    const got = fn(...args);
+    const got = validateLine(...args);
     if (want === null) assert.equal(got, null, name);
     else assert.match(got ?? "", want, name);
   }
-}
-
-test("validateLine (server copy)", () => run(validateLine));
-
-// The browser copy in public/index.html must be identical and pass the same cases.
-const html = new URL("../public/index.html", import.meta.url);
-test("validateLine (browser copy) matches the server copy", { skip: !existsSync(html) && "index.html not built yet" }, () => {
-  const block = (s) => s.match(/\/\/ BEGIN validateLine\n([\s\S]*?)\/\/ END validateLine/)?.[1].replace(/^export /m, "").trim();
-  const server = block(readFileSync(new URL("../lib/square.js", import.meta.url), "utf8"));
-  const browser = block(readFileSync(html, "utf8"));
-  assert.ok(browser, "markers missing in index.html");
-  const norm = (s) => s.split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("//")).join("\n");
-  assert.equal(norm(browser), norm(server));
-  run(new Function(browser + "\nreturn validateLine;")());
 });

@@ -194,37 +194,14 @@ footer strong { color: var(--ink); }
   <div class="foot"><button class="primary pink" id="checkout">Checkout with Square</button></div>
 </div>
 
-<script>
-"use strict";
+<script type="module">
+import { validateLine } from "./validate.js";
 const $ = (s) => document.querySelector(s);
 const money = (c) => "$" + (c / 100).toFixed(2);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeUrl = (u) => (/^https:\/\//i.test(u ?? "") ? u : "");
 const CART_KEY = "ginger-cart-v1";
 const CHECKOUT_KEY = "ginger-checkout-started"; // sessionStorage, set when we redirect to Square
-
-// BEGIN validateLine
-// COPY of validateLine in lib/square.js (no build step). Keep identical:
-// test/validate.test.js compares the two and runs both on the same cases.
-function validateLine(item, variationId, modifierIds, qty) {
-  if (!item) return "An item in your order is no longer available.";
-  const v = item.variations.find((x) => x.id === variationId);
-  if (!v) return `${item.name} is no longer available in that size.`;
-  if (v.soldOut) return `${item.name}${item.variations.length > 1 ? " (" + v.label + ")" : ""} is sold out.`;
-  if (!Number.isInteger(qty) || qty < 1 || qty > 20) return `Quantity for ${item.name} must be 1 to 20.`;
-  const ids = Array.isArray(modifierIds) ? modifierIds : [];
-  if (new Set(ids).size !== ids.length) return `An option for ${item.name} was selected twice.`;
-  const listOf = new Map();
-  for (const l of item.modifierLists) for (const m of l.modifiers) listOf.set(m.id, l.id);
-  if (ids.some((id) => !listOf.has(id))) return `An option for ${item.name} is no longer available.`;
-  for (const l of item.modifierLists) {
-    const n = ids.filter((id) => listOf.get(id) === l.id).length;
-    if (n < l.min) return `Choose ${l.min > 1 ? l.min + " options" : "an option"} for ${l.name} (${item.name}).`;
-    if (l.max != null && n > l.max) return `Choose at most ${l.max} for ${l.name} (${item.name}).`;
-  }
-  return null;
-}
-// END validateLine
 
 // ---- state
 let data = null;            // /api/menu response

@@ -13,11 +13,12 @@ The paid order then appears in Square Order Manager and prints in the kitchen.
 ## Architecture
 
 ```
-public/index.html            Menu UI, item sheet, cart drawer, checkout (vanilla JS, no build step)
+public/index.html            Menu UI, item sheet, cart drawer, checkout (vanilla JS module, no build step)
+public/validate.js           validateLine(): cart-line rules, shared by the page and the server
 functions/api/menu.js        GET  /api/menu      -> normalized menu + pickup times
 functions/api/checkout.js    POST /api/checkout  -> { url } of a Square-hosted checkout page
 lib/square.js                Square fetch helper, catalog -> menu normalization, modifier rules,
-                             validateLine(), hours, 60 s per-isolate cache
+                             hours, 60 s per-isolate cache (re-exports validateLine)
 lib/pickup.js                Prep time, busy windows, last-pickup cutoffs, scheduled pickup slots
 scripts/dump-catalog.mjs     Discovery: prints the catalog structure and warnings
 test/                        node:test unit + function tests, Playwright e2e (test/e2e)
@@ -107,7 +108,7 @@ npm run test:all
 
 `test/fixtures/catalog.js` is one fake catalog that the unit, function and e2e tests all share.
 
-`validateLine` exists twice, once in `lib/square.js` and once in `public/index.html`, because there's no build step. `test/validate.test.js` fails if the two copies drift apart.
+`validateLine` lives once, in `public/validate.js`. The page imports it directly, and `lib/square.js` re-exports it, so the Functions bundle the same file. Keep it free of imports so it runs unchanged in both places.
 
 ## Deploy: Cloudflare Pages
 

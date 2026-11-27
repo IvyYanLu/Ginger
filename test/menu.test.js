@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { plainText, effectiveLimits, normalizeMenu, formatHours, formatTime, sortCategories, isPresentAt, restaurantInfo } from "../lib/square.js";
+import { plainText, effectiveLimits, normalizeMenu, hoursGroups, formatTime, sortCategories, isPresentAt, restaurantInfo } from "../lib/square.js";
 import { objects, location, env } from "./fixtures/catalog.js";
 
 describe("effectiveLimits", () => {
@@ -134,7 +134,6 @@ describe("normalizeMenu", () => {
   test("restaurant info", () => {
     assert.deepEqual(menu.restaurant, {
       name: "Ginger Japanese Restaurant", address: "1 Main St, Bedford, MA 01730", phone: "+17815550100",
-      hours: "Mon–Thu 11am–2:30pm, 4pm–9:30pm · Fri 11am–2:30pm, 4pm–10pm · Sat 11am–10pm · Sun 12pm–9:30pm",
       hoursTable: [
         { days: ["MON", "TUE", "WED", "THU"], label: "Mon–Thu", times: ["11am – 2:30pm", "4pm – 9:30pm"] },
         { days: ["FRI"], label: "Fri", times: ["11am – 2:30pm", "4pm – 10pm"] },
@@ -142,7 +141,7 @@ describe("normalizeMenu", () => {
         { days: ["SUN"], label: "Sun", times: ["12pm – 9:30pm"] },
       ],
     });
-    assert.deepEqual(restaurantInfo({}), { name: "", address: "", phone: "", hours: "", hoursTable: [] });
+    assert.deepEqual(restaurantInfo({}), { name: "", address: "", phone: "", hoursTable: [] });
   });
 });
 
@@ -153,6 +152,7 @@ describe("sortCategories", () => {
 });
 
 describe("hours", () => {
+  const formatHours = (ps = []) => hoursGroups(ps).map((g) => `${g.label} ${g.times.join(", ") || "Closed"}`).join(" · ");
   const p = (day_of_week, s, e) => ({ day_of_week, start_local_time: s, end_local_time: e });
   test("formatTime: noon, midnight, minutes", () => {
     assert.equal(formatTime("12:00:00"), "12pm");
@@ -175,7 +175,7 @@ describe("hours", () => {
     assert.equal(formatHours(["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].flatMap((d) => [p(d, "17:00", "21:00"), p(d, "11:00", "14:00")])),
       "Mon–Sun 11am–2pm, 5pm–9pm");
   });
-  test("no hours -> empty", () => assert.equal(formatHours(), ""));
+  test("no hours -> no groups with times", () => assert.ok(hoursGroups().every((g) => !g.times.length)));
 });
 
 test("plainText", () => {
