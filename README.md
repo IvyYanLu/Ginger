@@ -46,7 +46,7 @@ Every request sends `Square-Version: 2026-11-18`, set as `SQUARE_VERSION` in `li
 
 | Var | Required | Notes |
 |---|---|---|
-| `SQUARE_ACCESS_TOKEN` | yes | **Secret.** Scopes: `ITEMS_READ`, `MERCHANT_PROFILE_READ`, `ORDERS_READ`, `ORDERS_WRITE`, `PAYMENTS_WRITE` |
+| `SQUARE_ACCESS_TOKEN` | yes | **Secret.** The app's access token. It uses `ITEMS_READ`, `MERCHANT_PROFILE_READ`, `ORDERS_READ`, `ORDERS_WRITE`, `PAYMENTS_WRITE`, but a personal access token carries the account's full permissions, so treat it like the owner's password |
 | `SQUARE_LOCATION_ID` | yes | The Bedford location |
 | `SQUARE_ENV` | yes | `sandbox` → connect.squareupsandbox.com, `production` → connect.squareup.com |
 | `SITE_URL` | yes | No trailing slash. Used for the post-payment redirect |
@@ -131,7 +131,7 @@ Vercel Hobby is not an option: its terms forbid commercial use.
 
 1. On developer.squareup.com, create an application ("Ginger Online Ordering").
 2. The **Sandbox** tab gives you a sandbox access token and a sandbox location ID. The **Production** tab gives you the real ones, using the owner's account.
-3. Give the token only these scopes: `ITEMS_READ`, `MERCHANT_PROFILE_READ`, `ORDERS_READ`, `ORDERS_WRITE`, `PAYMENTS_WRITE`.
+3. The site needs `ITEMS_READ`, `MERCHANT_PROFILE_READ`, `ORDERS_READ`, `ORDERS_WRITE` and `PAYMENTS_WRITE`. A personal access token can't be narrowed to these (only OAuth tokens have scopes): it has full access to the account. Only the person deploying should see it, and if it leaks, replace it on the Credentials page.
 4. Store the token only in `.dev.vars` or as a Cloudflare Secret. Never commit it, paste it into chat, or put it in a URL.
 
 ### Seed the sandbox
