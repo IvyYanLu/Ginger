@@ -64,8 +64,12 @@ test("one-tap add becomes a stepper", async ({ page }) => {
 test("bottom sheet with a required list, max lock, live price; cart total; checkout redirect", async ({ page }) => {
   await page.goto("/");
   await card(page, "Edamame").getByRole("button", { name: "Add Edamame" }).click();
+  // Cards show one base price (cheapest available size + required choices), never a range.
+  await expect(card(page, "California Roll").locator(".price")).toHaveText("$9.00");
+  await expect(page.locator(".card .price", { hasText: "–" })).toHaveCount(0);
   await card(page, "California Roll").getByRole("button", { name: /Choose options/ }).click();
   const sheet = page.locator("#itemSheet");
+  await expect(sheet.locator(".opt", { hasText: "8 pc" }).locator("em")).toHaveText(""); // the base size adds nothing
   await expect(sheet.getByRole("radio", { name: /4 pc/ })).toBeDisabled();
   await expect(sheet.getByRole("radio", { name: /8 pc/ })).toBeChecked();
   const add = sheet.locator("#sheetAdd");

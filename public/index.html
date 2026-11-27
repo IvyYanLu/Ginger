@@ -527,19 +527,20 @@ function linePrice(l) {
   const mods = modsOf(item).filter((m) => l.modifiers.includes(m.id));
   return (v.price + mods.reduce((s, m) => s + m.price, 0)) * l.qty;
 }
-// Cheapest and dearest possible configuration, for the card price.
-function priceRange(item) {
-  const vs = item.variations.filter((v) => !v.soldOut).map((v) => v.price);
-  if (!vs.length) return [Math.min(...item.variations.map((v) => v.price))];
-  let lo = Math.min(...vs), hi = Math.max(...vs);
-  for (const l of item.modifierLists) {
-    const ps = l.modifiers.map((m) => m.price).sort((a, b) => a - b);
-    lo += ps.slice(0, l.min).reduce((s, p) => s + p, 0);
-    hi += ps.reverse().slice(0, l.max ?? ps.length).reduce((s, p) => s + p, 0);
-  }
-  return lo === hi ? [lo] : [lo, hi];
+// Base price for the card: the cheapest size still available, plus the
+// cheapest choices any required option list forces. Options add to it in the sheet.
+const baseSize = (item) => {
+  const vs = item.variations.filter((v) => !v.soldOut);
+  return Math.min(...(vs.length ? vs : item.variations).map((v) => v.price));
+};
+function minPrice(item) {
+  let p = baseSize(item);
+  for (const l of item.modifierLists) p += l.modifiers.map((m) => m.price).sort((a, b) => a - b).slice(0, l.min).reduce((s, x) => s + x, 0);
+  return p;
 }
-const priceLabel = (item) => priceRange(item).map(money).join("–");
+const priceLabel = (item) => money(minPrice(item));
+// Size prices in the sheet, relative to the base size: "" or "+$7.50".
+const sizeDelta = (item, v) => { const d = v.price - baseSize(item); return d > 0 ? "+" + money(d) : d < 0 ? "−" + money(-d) : ""; };
 
 // ---- restaurant info, status band, footer
 function fmtPhone(p) {
@@ -753,7 +754,7 @@ function openItem(it) {
   const img = safeUrl(it.image);
   const vars = it.variations.length > 1 ? `<fieldset><legend>Size <small class="req">Required</small></legend>${it.variations.map((v) => `
       <label class="opt ${v.soldOut ? "dis" : ""}"><input type="radio" name="var" value="${esc(v.id)}" ${v.id === v0.id ? "checked" : ""} ${v.soldOut ? "disabled" : ""}>
-      <span>${esc(v.label)}${v.soldOut ? " · Sold out" : ""}</span><em>${money(v.price)}</em></label>`).join("")}</fieldset>` : "";
+      <span>${esc(v.label)}${v.soldOut ? " · Sold out" : ""}</span><em>${sizeDelta(it, v)}</em></label>`).join("")}</fieldset>` : "";
   const lists = it.modifierLists.map((l, i) => {
     const hint = l.min > 0
       ? `<small class="req">Required${l.min > 1 ? " · choose " + l.min : ""}${l.max != null && l.max > l.min ? ", up to " + l.max : ""}</small>`
