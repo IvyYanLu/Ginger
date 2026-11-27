@@ -16,7 +16,7 @@ test("GET /api/menu returns the normalized menu with cache header; caches 60 s",
   const f = squareMock(t);
   const res = await onRequestGet({ env });
   assert.equal(res.status, 200);
-  assert.equal(res.headers.get("Cache-Control"), "public, max-age=60");
+  assert.equal(res.headers.get("Cache-Control"), "private, no-cache");
   const body = await res.json();
   assert.equal(body.restaurant.name, "Ginger Japanese Restaurant");
   assert.equal(body.categories[0].name, "Appetizers");

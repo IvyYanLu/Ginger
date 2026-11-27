@@ -26,6 +26,7 @@ describe("effectiveLimits", () => {
   }
   test("missing item limits default to -1", () => assert.deepEqual(effectiveLimits({}, L(1, 2)), { min: 1, max: 2 }));
   test("legacy SINGLE with no min/max -> exactly one", () => assert.deepEqual(effectiveLimits({}, { selection_type: "SINGLE" }), { min: 1, max: 1 }));
+  test("SINGLE with explicit min 0 stays optional", () => assert.deepEqual(effectiveLimits({}, L(0, undefined, "SINGLE")), { min: 0, max: Infinity }));
   test("SINGLE with -1/-1 list limits -> exactly one", () => assert.deepEqual(effectiveLimits({}, L(-1, -1, "SINGLE")), { min: 1, max: 1 }));
   test("legacy MULTIPLE with no min/max -> no limit", () => assert.deepEqual(effectiveLimits({}, { selection_type: "MULTIPLE" }), { min: 0, max: Infinity }));
   test("SINGLE with explicit limits uses them", () => assert.deepEqual(effectiveLimits({}, L(1, 1, "SINGLE")), { min: 1, max: 1 }));

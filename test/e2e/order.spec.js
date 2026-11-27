@@ -138,11 +138,17 @@ test("409: refreshes the menu, drops the stale line and explains", async ({ page
   await expect(card(page, "Mochi")).toContainText("Sold out");
 });
 
-test("cart persists; ?status=success clears it and cleans the URL", async ({ page }) => {
+test("cart persists; ?status=success after our checkout clears it and cleans the URL", async ({ page }) => {
   await page.goto("/");
   await card(page, "Edamame").getByRole("button", { name: "Add Edamame" }).click();
   await page.reload();
   await expect(page.locator("#bar")).toContainText("1 item");
+  // A bare ?status=success (bookmark, shared link) keeps the cart.
+  await page.goto("/?status=success");
+  await expect(page.locator("#bar")).toContainText("1 item");
+  expect(new URL(page.url()).search).toBe("");
+  // A return from a checkout this tab started clears it.
+  await page.evaluate(() => sessionStorage.setItem("ginger-checkout-started", "1"));
   await page.goto("/?status=success");
   await expect(page.locator("#topMsg")).toContainText("Thank you");
   await expect(page.locator("#bar")).toBeHidden();

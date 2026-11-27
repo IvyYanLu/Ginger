@@ -25,7 +25,7 @@ test("report shows structure and warnings", () => {
   for (const s of [
     "Bedford, MA, 01730", "TUE  11:30–21:30", "Maki", "SOLD OUT", "[NOT AT LOCATION]",
     "used by: California Roll", "is variable-priced", "has no category", "nested lists (Note)",
-    "is TEXT", 'requires 1 from "Rice" but only 0',
+    "is TEXT", 'list "Rice" requires 1 but only 0 visible online',
   ]) assert.ok(r.includes(s), `missing: ${s}\n${r}`);
 });
 
@@ -49,7 +49,7 @@ test("required TEXT lists don't warn (the site skips them); separator rows are m
       modifier_list_info: [{ modifier_list_id: "T" }] } })),
   ];
   const r = buildReport(objs, null, "LOC1");
-  assert.ok(!r.includes('requires 1 from "Special Instructions"'), r);
+  assert.ok(!r.includes('"Special Instructions" requires'), r);
   assert.ok(r.includes("(separator row: hidden online)"), r);
 });
 

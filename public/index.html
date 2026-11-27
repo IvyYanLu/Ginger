@@ -201,6 +201,7 @@ const money = (c) => "$" + (c / 100).toFixed(2);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeUrl = (u) => (/^https:\/\//i.test(u ?? "") ? u : "");
 const CART_KEY = "ginger-cart-v1";
+const CHECKOUT_KEY = "ginger-checkout-started"; // sessionStorage, set when we redirect to Square
 
 // BEGIN validateLine
 // COPY of validateLine in lib/square.js (no build step). Keep identical:
@@ -531,11 +532,16 @@ function render() { renderMenu(); renderCart(); if (data?.pickup) renderPickup()
 // Lunch-only items in the cart limit pickup to lunch times (server re-checks).
 let pickupMsg = false;
 const cartHasLunch = () => [...cart.values()].some((l) => byVar.get(l.id)?.lunchOnly);
-function renderPickup() {
+// What pickup the current cart can use.
+function pickupAvail() {
   const p = data.pickup;
   const lunch = cartHasLunch();
   const asapOk = p.asap.available && (!lunch || p.asap.lunch);
   const slots = lunch ? p.slots.filter((s) => s.lunch) : p.slots;
+  return { p, lunch, asapOk, slots, none: !asapOk && !slots.length };
+}
+function renderPickup() {
+  const { p, lunch, asapOk, slots, none } = pickupAvail();
   if (!asapOk && pickupMode === "asap") pickupMode = "later";
   $("#tAsap").disabled = !asapOk;
   $("#tAsap").textContent = asapOk ? `ASAP (~${p.asap.minutes} min)` : p.asap.available ? "ASAP (not lunch)" : "ASAP (closed)";
@@ -550,7 +556,6 @@ function renderPickup() {
   const note = $("#lunchNote");
   note.hidden = !lunch;
   note.textContent = lunch ? `Your order has lunch-only items, so pickup is ${p.lunchLabel ?? "at lunch"}.` : "";
-  const none = !asapOk && !slots.length;
   $("#checkout").disabled = none;
   if (!none && pickupMsg) { showMsg(""); pickupMsg = false; } // clear our own message only
   if (none) pickupMsg = true;
@@ -582,7 +587,13 @@ $("#checkout").onclick = async () => {
       }),
     });
     const body = await res.json().catch(() => ({}));
-    if (res.ok && body.url) { location.href = body.url; return; }
+    if (res.ok && body.url) {
+      // Marks this tab as having started a checkout, so ?status=success on the
+      // way back from Square (and only then) clears the cart.
+      try { sessionStorage.setItem(CHECKOUT_KEY, "1"); } catch {}
+      location.href = body.url;
+      return;
+    }
     if (res.status === 409) {
       await loadMenu(true);
       const dropped = pruneCart();
@@ -595,8 +606,8 @@ $("#checkout").onclick = async () => {
     showMsg("Couldn't reach the restaurant. Check your connection and try again.");
   }
   btn.textContent = "Checkout with Square";
-  if (cart.size) renderPickup(); // re-applies "no pickup times" disabling
-  else btn.disabled = true;
+  // Button state only: renderPickup would also replace the message just shown.
+  btn.disabled = !cart.size || pickupAvail().none;
 };
 
 // ---- sheets
@@ -657,11 +668,18 @@ async function loadMenu(fresh) {
 }
 (async function boot() {
   const params = new URLSearchParams(location.search);
-  if (params.get("status") === "success") {
-    try { localStorage.removeItem(CART_KEY); } catch {}
-    $("#topMsg").innerHTML = `<div class="banner ok">Thank you! Your order is in. Square will email or text your receipt.</div>`;
+  let started = false;
+  try { started = sessionStorage.getItem(CHECKOUT_KEY) === "1"; sessionStorage.removeItem(CHECKOUT_KEY); } catch {}
+  const success = params.get("status") === "success";
+  if (success) {
     params.delete("status");
     history.replaceState(null, "", location.pathname + (params.size ? "?" + params : "") + location.hash);
+  }
+  // Only a return from a checkout this tab started counts as an order; a
+  // bookmarked or shared ?status=success just loads the saved cart.
+  if (success && started) {
+    try { localStorage.removeItem(CART_KEY); } catch {}
+    $("#topMsg").innerHTML = `<div class="banner ok">Thank you! Your order is in. Square will email or text your receipt.</div>`;
   } else loadCart();
   try {
     await loadMenu();

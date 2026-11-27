@@ -25,6 +25,7 @@ function chunkBy(objs, size) {
   let cur = [], n = 0;
   for (const o of objs) {
     const k = size(o);
+    if (k > MAX_BATCH_OBJECTS) throw new Error(`"${o.item_data?.name ?? o.modifier_list_data?.name ?? o.id}" alone has ${k} objects, over Square's ${MAX_BATCH_OBJECTS}-object batch limit.`);
     if (cur.length && n + k > MAX_BATCH_OBJECTS) { out.push(cur); cur = []; n = 0; }
     cur.push(o); n += k;
   }
@@ -73,7 +74,9 @@ export function buildPhases(objects, fromLoc, toLoc) {
   }
 
   // 3. Modifier lists with their modifiers, chunked by list + modifier count.
-  const listChunks = chunkBy(byType("MODIFIER_LIST"), (o) => 1 + (o.modifier_list_data?.modifiers?.length ?? 0));
+  // Count only what build() sends: live modifiers / variations at the source location.
+  const sent = (arr) => (arr ?? []).filter((x) => !x.is_deleted && isPresentAt(x, fromLoc)).length;
+  const listChunks = chunkBy(byType("MODIFIER_LIST"), (o) => 1 + sent(o.modifier_list_data?.modifiers));
   listChunks.forEach((chunk, ci) => phases.push({ name: listChunks.length > 1 ? `modifier lists (part ${ci + 1})` : "modifier lists", objects: chunk, build: (o) => {
     const d = o.modifier_list_data ?? {};
     return {
@@ -94,7 +97,7 @@ export function buildPhases(objects, fromLoc, toLoc) {
 
   // 4. Items with their variations, chunked by item + variation count.
   let first = 1;
-  for (const chunk of chunkBy(byType("ITEM"), (o) => 1 + (o.item_data?.variations?.length ?? 0))) {
+  for (const chunk of chunkBy(byType("ITEM"), (o) => 1 + sent(o.item_data?.variations))) {
     const range = `${first}–${first + chunk.length - 1}`;
     first += chunk.length;
     phases.push({ name: `items ${range}`, objects: chunk, build: (o, real) => {

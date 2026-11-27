@@ -3,7 +3,9 @@
 // Usage: node scripts/dump-catalog.mjs   (reads env vars, falling back to .dev.vars)
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { listCatalog, getLocation, isPresentAt, childLists, isSeparator, normalizeMenu } from "../lib/square.js";
+import { listCatalog, getLocation, isPresentAt, childLists, isSeparator, normalizeMenu, normalizeModifierList } from "../lib/square.js";
+
+const hideSet = (s) => new Set((s ?? "").split(",").map((x) => x.trim().toLowerCase()).filter(Boolean));
 
 // Minimal KEY=value parser for .dev.vars (quotes optional, # comments).
 export function parseDevVars(text) {
@@ -138,14 +140,13 @@ export function buildReport(objects, location, locationId, env = {}) {
       L.push(`    - ${(md.name ?? "").padEnd(24)} ${money(md.price_money).padStart(8)}${ov?.price_money ? "  override " + money(ov.price_money) : ""}${flag(ov?.sold_out, "SOLD OUT")}${flag(md.hidden_online, "hidden_online")}${flag(md.on_by_default, "on_by_default")}${here(m)}${kids.length ? "  children: " + kids.map(name).join(", ") : ""}`);
       if (kids.length) warn.push(`Modifier "${ld.name} / ${md.name}" has nested lists (${kids.map(name).join(", ")}): not supported.`);
     }
-    // Required lists with nothing visible, at list level or via item override.
+    // Items the site excludes because of this list: the same rules the site
+    // uses (limits, hidden/sold-out/separator rows, HIDE_MODIFIERS, nested lists).
     for (const it of items) {
       const info = (it.item_data.modifier_list_info ?? []).find((i) => i.modifier_list_id === lst.id);
-      if (!info || info.enabled === false || ld.modifier_type === "TEXT") continue; // TEXT lists are skipped online
-      const min = info.min_selected_modifiers > 0 ? info.min_selected_modifiers : ld.min_selected_modifiers ?? 0;
-      const hiddenByOverride = new Set((info.modifier_overrides ?? []).filter((o) => o.hidden_online).map((o) => o.modifier_id));
-      const vis = (ld.modifiers ?? []).filter((m) => isPresentAt(m, locationId) && !m.modifier_data.hidden_online && !hiddenByOverride.has(m.id)).length;
-      if (min > 0 && vis < min) warn.push(`Item "${it.item_data.name}" requires ${min} from "${ld.name}" but only ${vis} modifier(s) are visible online.`);
+      if (!info) continue;
+      const r = normalizeModifierList(info, lst, locationId, hideSet(env.HIDE_MODIFIER_LISTS), hideSet(env.HIDE_MODIFIERS));
+      if (r?.exclude) warn.push(`Item "${it.item_data.name}" is excluded online: ${r.exclude}.`);
     }
     if (!visible) L.push("    (no modifiers visible online)");
   }
