@@ -15,6 +15,7 @@ The paid order then appears in Square Order Manager and prints in the kitchen.
 ```
 public/index.html            Menu UI, item sheet, cart drawer, checkout (vanilla JS module, no build step)
 public/validate.js           validateLine(): cart-line rules, shared by the page and the server
+public/img/                  Static images (hero photo)
 functions/api/menu.js        GET  /api/menu      -> normalized menu + pickup times
 functions/api/checkout.js    POST /api/checkout  -> { url } of a Square-hosted checkout page
 lib/square.js                Square fetch helper, catalog -> menu normalization, modifier rules,

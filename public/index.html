@@ -5,157 +5,402 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ginger Japanese Restaurant · Order Pickup</title>
 <meta name="description" content="Order pickup online from Ginger Japanese Restaurant in Bedford, MA. Menu prices, no delivery-app fees.">
-<meta name="theme-color" content="#faf5ec">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23b9475c'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f9f7f2">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23a13d2d'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --cream: #faf5ec; --paper: #fffdf8; --ink: #1d1a16; --muted: #6f675d; --line: #e8dfd0;
-  --ginger: #e58a98; --ginger-deep: #b9475c; --ginger-soft: #fbe6ea; --ok: #3d7a57; --warn: #a3542a;
-  --radius: 14px; --shadow: 0 1px 2px rgba(29,26,22,.06), 0 4px 16px rgba(29,26,22,.06);
+  --bg: #f9f7f2; --ink: #252a24; --muted: #65695e; --line: #dedcd3; --white: #fff;
+  --red: #a13d2d; --red-dark: #8a3324; --blush: #f5ece6; --blush-sel: #eee2da; --sand: #eee7de;
+  --sage: #eaede3; --sage-line: #cfd4c6; --green: #3f5d3d; --off: #e6e5df; --off-ink: #73766c;
+  --serif: "Playfair Display", Georgia, serif; --sans: Inter, system-ui, -apple-system, sans-serif;
+  --gutter: 16px; --navh: 58px;
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--cream); color: var(--ink); font: 15px/1.45 Inter, system-ui, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 var(--sans); }
 body.locked { overflow: hidden; }
-h1, h2, h3 { font-family: Fraunces, Georgia, serif; font-weight: 600; letter-spacing: -.01em; margin: 0; }
+h1, h2, h3, p { margin: 0; }
+h1, h2 { font-family: var(--serif); font-weight: 400; }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--ginger-deep); outline-offset: 2px; }
+a { color: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 [hidden] { display: none !important; }
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 var(--gutter); }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+.lbl { display: block; font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .02em; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 26px; border: 0; border-radius: 6px; font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.btn.red { background: var(--red); color: #fff; }
+.btn.red:hover { background: var(--red-dark); }
+.btn.dark { background: var(--ink); color: #fff; }
+.btn:disabled { background: var(--off); color: var(--off-ink); cursor: default; }
 
-header { padding: 22px 0 14px; }
-header h1 { font-size: 30px; line-height: 1.1; }
-.meta { color: var(--muted); font-size: 14px; margin-top: 6px; }
-.meta a { color: var(--ink); font-weight: 500; text-decoration: none; border-bottom: 1px solid var(--ginger); white-space: nowrap; }
-.status { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 6px 12px; border-radius: 99px; background: var(--paper); border: 1px solid var(--line); font-size: 13px; font-weight: 500; }
-.status i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
-.status.closed i { background: var(--warn); }
-.direct { display: flex; gap: 12px; align-items: center; margin-top: 14px; padding: 12px 14px; border-radius: var(--radius); background: var(--ginger-soft); border: 1px solid #f3cdd4; }
-.direct b { display: block; font: 600 16px/1.25 Fraunces, Georgia, serif; color: var(--ginger-deep); }
-.direct span { font-size: 13px; }
-.direct .seal { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--ginger-deep); color: #fff; display: grid; place-items: center; font-weight: 600; }
-.hours { margin-top: 12px; font-size: 14px; }
-.hours summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+/* ---- top bar */
+.top .in { display: flex; align-items: center; gap: 16px; height: 72px; border-bottom: 1px solid var(--line); }
+.wm { text-decoration: none; display: flex; flex-direction: column; line-height: 1; }
+.wm b { font: 400 34px/1 var(--serif); color: var(--red); letter-spacing: -.01em; }
+.wm small { font-size: 8px; font-weight: 500; letter-spacing: .02em; margin-top: 4px; }
+.links { display: none; }
+.links a { position: relative; text-decoration: none; font-size: 14px; padding: 8px 0; }
+.links a.on { color: var(--red); font-weight: 600; }
+.links a.on::after { content: ""; position: absolute; left: 0; right: -4px; bottom: -6px; height: 2px; background: var(--red); }
+.tel { margin-left: auto; font-size: 13px; font-weight: 500; text-decoration: none; white-space: nowrap; }
+.bagbtn { min-height: 44px; padding: 0 16px; font-size: 14px; }
+
+/* ---- hero */
+.hero { display: grid; gap: 20px; padding-top: 24px; padding-bottom: 24px; }
+.hero .eyebrow { color: var(--red); }
+.hero h1 { font-size: clamp(34px, 9vw, 49px); line-height: 1.2; margin-top: 12px; }
+.hero h1 span { display: block; }
+.hero .who { font-size: 17px; font-weight: 600; margin-top: 18px; }
+.hero .addr { font-size: 14px; color: var(--muted); margin-top: 6px; }
+.hero .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 22px; }
+.hero .cuisine { font-size: 11px; font-weight: 500; color: var(--muted); word-spacing: .2em; }
+.hero img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; background: var(--sage); }
+
+/* ---- pickup band */
+.band { position: relative; display: grid; gap: 14px; background: var(--sage); border-radius: 8px; padding: 18px 20px; }
+.status { display: grid; grid-template-columns: 8px 1fr; column-gap: 14px; align-items: center; }
+.status i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.status.closed i { background: var(--red); }
+.status b { font-size: 14px; font-weight: 600; color: var(--green); }
+.status.closed b { color: var(--red); }
+.status span { grid-column: 1 / -1; font-size: 15px; font-weight: 500; margin-top: 4px; }
+.hours { position: relative; }
+.hours summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 24px; }
 .hours summary::-webkit-details-marker { display: none; }
-.hours summary b { font-weight: 600; }
-.hours summary u { text-decoration: none; color: var(--ginger-deep); font-size: 13px; font-weight: 500; white-space: nowrap; }
-.hours summary u::after { content: " ▾"; }
-.hours[open] summary u::after { content: " ▴"; }
-.hours table { margin-top: 10px; border-collapse: collapse; width: 100%; max-width: 360px; font-size: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-.hours th, .hours td { text-align: left; vertical-align: top; padding: 8px 12px; border-top: 1px solid var(--line); }
+.hours summary .lbl { width: 100%; }
+.hours summary b { font-size: 16px; font-weight: 500; }
+.hours summary u { text-decoration: none; color: var(--red); font-size: 13px; font-weight: 600; white-space: nowrap; }
+.hours summary u::after { content: "  ↗"; white-space: pre; }
+.hours[open] summary u::after { content: "  ↑"; }
+.hours table { position: absolute; z-index: 4; top: calc(100% + 10px); left: 0; width: min(340px, 100%); min-width: 260px; border-collapse: collapse; background: var(--white); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(37,42,36,.12); font-size: 14px; }
+.hours th, .hours td { text-align: left; vertical-align: top; padding: 9px 14px; border-top: 1px solid var(--line); }
 .hours tr:first-child th, .hours tr:first-child td { border-top: 0; }
 .hours th { font-weight: 500; color: var(--muted); width: 40%; }
-.hours tr.today th, .hours tr.today td { font-weight: 600; color: var(--ink); background: var(--ginger-soft); }
+.hours tr.today th, .hours tr.today td { font-weight: 600; color: var(--ink); background: var(--sage); }
 .hours td span { display: block; }
-.banner { background: var(--ginger-soft); color: var(--ginger-deep); border-radius: 12px; padding: 12px 14px; font-weight: 500; margin-top: 14px; }
-.banner.ok { background: #e3f0e7; color: var(--ok); }
+.band .btn { width: 100%; }
+.band .divider { display: none; }
+#topMsg:not(:empty) { margin-top: 16px; }
+.banner { background: var(--blush); color: var(--red); border-radius: 6px; padding: 12px 14px; font-weight: 500; font-size: 14px; }
+.banner.ok { background: var(--sage); color: var(--green); }
 
-nav { position: sticky; top: 0; z-index: 5; background: rgba(250,245,236,.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-nav .wrap { display: flex; gap: 6px; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; scrollbar-width: none; }
-nav .wrap::-webkit-scrollbar { display: none; }
-nav a { flex: none; padding: 7px 14px; border-radius: 99px; text-decoration: none; color: var(--ink); font-size: 14px; font-weight: 500; }
-nav a.on { background: var(--ink); color: var(--cream); }
+/* ---- menu */
+main.wrap { padding-top: 40px; padding-bottom: 56px; }
+.mhead { display: grid; gap: 16px; margin-bottom: 20px; }
+.mhead h2 { font-size: 32px; line-height: 1.2; }
+.mhead p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.search { position: relative; display: block; }
+.search input { width: 100%; height: 48px; padding: 0 48px 0 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); color: var(--ink); font: 16px var(--sans); -webkit-appearance: none; appearance: none; }
+.search input::placeholder { color: var(--muted); }
+.search kbd { display: none; position: absolute; right: 16px; top: 15px; font: 12px var(--sans); color: var(--muted); }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
 
-main { padding-bottom: 40px; min-height: 40vh; }
-section { padding-top: 26px; scroll-margin-top: 58px; }
-section h2 { font-size: 22px; margin-bottom: 12px; }
-/* Lunch group */
-.meal { margin-top: 18px; scroll-margin-top: 58px; }
-.meal > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); background: var(--ink); color: var(--cream); }
+nav.cats { position: sticky; top: 0; z-index: 5; margin: 0 calc(-1 * var(--gutter)); background: rgba(249,247,242,.95); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+nav.cats .lbl { display: none; }
+#nav { display: flex; gap: 6px; overflow-x: auto; padding: 10px var(--gutter); scrollbar-width: none; }
+#nav::-webkit-scrollbar { display: none; }
+#nav a { position: relative; flex: none; padding: 8px 14px; border-radius: 5px; text-decoration: none; font-size: 13px; }
+#nav a.on { background: var(--blush-sel); color: var(--red); font-weight: 600; }
+
+#menu { min-width: 0; min-height: 40vh; }
+.sec { scroll-margin-top: calc(var(--navh) + 12px); }
+.sec + .sec, .meal + .sec { margin-top: 28px; }
+.sech { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.sech h2 { font-size: 24px; line-height: 1.4; }
+.sech small { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.meal { scroll-margin-top: calc(var(--navh) + 12px); }
+.meal > summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; min-height: 66px; padding: 12px 20px; border-radius: 6px; background: var(--sage); }
 .meal > summary::-webkit-details-marker { display: none; }
-.meal > summary h2 { font-size: 22px; margin: 0; color: inherit; }
-.meal > summary .when { font-size: 14px; opacity: .85; }
-.meal > summary::after { content: ""; margin-left: auto; width: 9px; height: 9px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .2s; }
-.meal[open] > summary::after { transform: rotate(-135deg); }
-.meal > summary:focus-visible { outline: 3px solid var(--ginger); outline-offset: 2px; }
-.meal section h2 { font-size: 19px; }
-.grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
-@media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
-@media (min-width: 960px) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
-.card { display: flex; gap: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; box-shadow: var(--shadow); }
+.meal > summary h2 { font-size: 22px; line-height: 1.4; margin-right: auto; }
+.meal > summary .when { order: 3; width: 100%; font-size: 13px; font-weight: 500; color: var(--muted); }
+.meal > summary::after { content: "Show  ⌄"; white-space: pre; order: 2; font-size: 12px; font-weight: 600; color: var(--red); }
+.meal[open] > summary::after { content: "Hide  ⌃"; }
+.meal[open] > .sec:first-of-type { margin-top: 24px; }
+
+.grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+.card { display: flex; gap: 12px; min-height: 118px; background: var(--white); border: 1px solid var(--line); border-radius: 7px; padding: 12px 12px 12px 15px; }
 .card.tap { cursor: pointer; }
+.card.tap:hover { border-color: #c9c6bb; }
 .card .body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.card h3 { font: 600 16px/1.3 Inter, sans-serif; }
-.card p { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.card .row { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.price { font-weight: 600; white-space: nowrap; }
-.photo { flex: none; width: 92px; height: 92px; border-radius: 10px; object-fit: cover; background: var(--ginger-soft); }
+.card h3 { font-size: 14px; font-weight: 600; line-height: 1.4; }
+.card p { margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card .row { margin-top: auto; padding-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.price { font-size: 13px; font-weight: 500; white-space: nowrap; }
+.photo { flex: none; width: 76px; height: 76px; border-radius: 6px; object-fit: cover; background: var(--sage); }
 .soldout { opacity: .55; }
-.pnote { margin: 8px 0 0; font-size: 13px; color: var(--ginger-deep); }
-.tag { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-.add { border: 0; background: var(--ink); color: var(--cream); border-radius: 99px; padding: 7px 16px; font-weight: 600; font-size: 14px; }
-.add.ghost { background: var(--ginger-soft); color: var(--ginger-deep); }
-.step { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 99px; background: var(--paper); }
-.step button { width: 34px; height: 34px; border: 0; background: none; font-size: 18px; line-height: 1; }
+.tag { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.add { min-height: 36px; min-width: 72px; padding: 0 14px; border: 0; border-radius: 4px; background: var(--blush); color: var(--red); font-size: 12px; font-weight: 600; }
+.add:hover { background: var(--blush-sel); }
+.add.plus::before { content: "+  "; white-space: pre; }
+.step { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 5px; background: var(--white); }
+.step button { width: 36px; height: 36px; border: 0; background: none; font-size: 17px; line-height: 1; color: var(--red); }
 .step button:disabled { opacity: .35; cursor: default; }
-.step span { min-width: 22px; text-align: center; font-weight: 600; }
-.loading, .error { padding: 40px 0; text-align: center; color: var(--muted); }
+.step span { min-width: 20px; text-align: center; font-size: 13px; font-weight: 600; }
+.loading, .error, .none { padding: 40px 0; text-align: center; color: var(--muted); }
 
-.bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); z-index: 10; }
-.bar button { width: 100%; max-width: 560px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; border: 0; border-radius: 16px; padding: 15px 18px; background: var(--ginger-deep); color: #fff; font-weight: 600; font-size: 16px; box-shadow: 0 8px 24px rgba(185,71,92,.35); }
-body.has-bar footer { padding-bottom: 110px; }
+/* ---- side column */
+.side { display: grid; gap: 20px; align-content: start; }
+.bag { display: none; background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 19px 21px 20px; }
+.bagh { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.bagh h2 { font: 600 20px/1.4 var(--sans); }
+.bagh span { font-size: 12px; color: var(--muted); }
+.bag .big { font: 400 29px/1.4 var(--serif); margin-top: 20px; }
+.bag .sub { font-size: 13px; color: var(--muted); margin-top: 14px; }
+.blines { max-height: 46vh; overflow-y: auto; margin: 4px -4px 0; padding: 0 4px; }
+.bline { display: flex; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.bline .info { flex: 1; min-width: 0; }
+.bline strong { font-weight: 600; }
+.bline .mods { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.bline .right { display: flex; flex-direction: column; align-items: end; gap: 6px; }
+.bline .step button { width: 30px; height: 30px; }
+.bsum { display: flex; justify-content: space-between; font-weight: 600; font-size: 14px; margin-top: 14px; }
+.pill { margin-top: 22px; padding: 12px 14px; border-radius: 4px; background: var(--sage); font-size: 13px; font-weight: 500; }
+.bag .btn { width: 100%; margin-top: 14px; min-height: 40px; font-size: 13px; }
+.direct { background: var(--sand); border-radius: 8px; padding: 18px 20px 26px; }
+.direct .eyebrow { font-size: 10px; color: var(--red); }
+.direct h2 { font-size: 21px; line-height: 1.4; margin-top: 10px; }
+.direct p { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.help { font-size: 13px; }
+.help b { font-weight: 500; }
+.help a { display: inline-block; margin-top: 12px; color: var(--red); font-weight: 600; text-decoration: none; }
+.help a::after { content: "  ↗"; white-space: pre; }
+.help p { font-size: 11px; color: var(--muted); margin-top: 14px; }
 
-.scrim { position: fixed; inset: 0; background: rgba(29,26,22,.42); z-index: 20; opacity: 0; pointer-events: none; transition: opacity .2s; }
+/* ---- mobile order bar */
+.bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom)); z-index: 10; background: linear-gradient(rgba(249,247,242,0), var(--bg) 40%); }
+.bar button { width: 100%; max-width: 560px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; border: 0; border-radius: 6px; padding: 16px 18px; background: var(--red); color: #fff; font-weight: 600; font-size: 15px; box-shadow: 0 8px 24px rgba(161,61,45,.3); }
+body.has-bar .foot { padding-bottom: 96px; }
+
+/* ---- footer */
+.foot { background: var(--ink); color: #fff; padding: 36px 0 32px; }
+.fgrid { display: grid; gap: 28px; }
+.foot .wm b { color: #fff; font-size: 40px; }
+.foot .brand { font-size: 13px; font-weight: 500; margin-top: 14px; }
+.foot .tag2 { font-size: 12px; color: #c9cbc3; margin-top: 10px; }
+.foot .lbl { color: #c9cbc3; margin-bottom: 12px; }
+.foot .val { font-size: 13px; line-height: 1.5; }
+.foot .val + .val { margin-top: 10px; }
+.foot a { text-decoration: none; }
+.foot .fnote { font-size: 11px; color: #c9cbc3; margin-top: 18px; }
+.legal { border-top: 1px solid rgba(255,255,255,.14); margin-top: 32px; padding-top: 18px; font-size: 11px; color: #a9aca2; display: grid; gap: 6px; }
+
+/* ---- sheets (bottom sheets on phones, dialogs on larger screens) */
+.scrim { position: fixed; inset: 0; background: rgba(37,42,36,.45); z-index: 20; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .scrim.open { opacity: 1; pointer-events: auto; }
-.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; max-height: 92vh; max-height: 92dvh; display: flex; flex-direction: column; background: var(--paper); border-radius: 22px 22px 0 0; transform: translateY(105%); visibility: hidden; transition: transform .25s ease, visibility 0s .25s; max-width: 600px; margin: 0 auto; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; max-height: 92vh; max-height: 92dvh; display: flex; flex-direction: column; background: var(--bg); border-radius: 14px 14px 0 0; transform: translateY(105%); visibility: hidden; transition: transform .25s ease, visibility 0s .25s; max-width: 600px; margin: 0 auto; }
 .sheet.open { transform: none; visibility: visible; transition: transform .25s ease; }
 .sheet .grab { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 10px auto 0; flex: none; }
-.sheet .head { padding: 10px 20px 6px; display: flex; justify-content: space-between; gap: 12px; align-items: start; }
-.sheet .head h2 { font-size: 24px; }
-.x { border: 0; background: var(--cream); width: 34px; height: 34px; border-radius: 50%; font-size: 18px; flex: none; }
-.sheet .scroll { overflow-y: auto; padding: 0 20px 12px; overscroll-behavior: contain; }
-.sheet .hero { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; margin-bottom: 10px; }
-.sheet .desc { color: var(--muted); margin: 0 0 8px; }
-fieldset { border: 0; padding: 0; margin: 18px 0 0; min-width: 0; }
-legend { display: flex; width: 100%; justify-content: space-between; align-items: baseline; font-weight: 600; padding: 0; margin-bottom: 6px; }
-legend small { font-weight: 500; font-size: 12px; color: var(--muted); }
-legend small.req { color: var(--ginger-deep); background: var(--ginger-soft); padding: 2px 8px; border-radius: 99px; }
-.opt { display: flex; align-items: center; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--line); cursor: pointer; }
-.opt input { width: 20px; height: 20px; accent-color: var(--ginger-deep); margin: 0; flex: none; }
+.sheet .head { padding: 12px 20px 8px; display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.sheet .head h2 { font-size: 26px; line-height: 1.25; }
+.x { border: 0; background: var(--white); width: 36px; height: 36px; border-radius: 50%; font-size: 16px; flex: none; border: 1px solid var(--line); }
+.sheet .scroll { overflow-y: auto; padding: 0 20px 14px; overscroll-behavior: contain; }
+.sheet .hero { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; }
+.sheet .desc { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
+fieldset { border: 0; padding: 0; margin: 20px 0 0; min-width: 0; }
+legend { display: flex; width: 100%; justify-content: space-between; align-items: baseline; font-weight: 600; font-size: 14px; padding: 0; margin-bottom: 6px; }
+legend small { font-weight: 500; font-size: 11px; color: var(--muted); }
+legend small.req { color: var(--red); background: var(--blush); padding: 3px 8px; border-radius: 4px; }
+.opt { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 10px 2px; border-bottom: 1px solid var(--line); cursor: pointer; font-size: 14px; }
+.opt input { width: 20px; height: 20px; accent-color: var(--red); margin: 0; flex: none; }
 .opt span { flex: 1; }
-.opt em { font-style: normal; color: var(--muted); font-size: 14px; }
+.opt em { font-style: normal; color: var(--muted); font-size: 13px; }
 .opt.dis { opacity: .45; cursor: default; }
-.sheet .foot { display: flex; gap: 12px; align-items: center; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); flex: none; }
-.primary { flex: 1; border: 0; border-radius: 14px; padding: 14px; background: var(--ink); color: var(--cream); font-weight: 600; font-size: 16px; }
-.primary:disabled { background: #cfc6b8; color: #fff; cursor: default; }
-.primary.pink { background: var(--ginger-deep); }
-.primary.pink:disabled { background: #d9a7b0; }
-
-.line { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.sheet .foot2 { display: flex; gap: 12px; align-items: center; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); flex: none; background: var(--white); }
+.sheet .step button { width: 44px; height: 44px; }
+.primary { flex: 1; min-height: 50px; border: 0; border-radius: 6px; padding: 0 14px; background: var(--red); color: #fff; font-weight: 600; font-size: 15px; }
+.primary:disabled { background: var(--off); color: var(--off-ink); cursor: default; }
+.line { display: flex; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .line .info { flex: 1; min-width: 0; }
 .line .mods { color: var(--muted); font-size: 13px; }
 .line .right { display: flex; flex-direction: column; align-items: end; gap: 6px; }
-.field { display: block; margin-top: 16px; font-weight: 600; font-size: 14px; }
-.field input, .field textarea, .field select { display: block; width: 100%; margin-top: 6px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font: 16px Inter, system-ui, sans-serif; }
-.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--cream); padding: 4px; border-radius: 12px; margin-top: 6px; }
-.seg button { border: 0; background: none; padding: 9px; border-radius: 9px; font-weight: 600; font-size: 14px; }
-.seg button[aria-pressed="true"] { background: #fff; box-shadow: var(--shadow); }
+.field { display: block; margin-top: 18px; font-weight: 600; font-size: 14px; }
+.field input, .field textarea, .field select { display: block; width: 100%; margin-top: 6px; padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); color: var(--ink); font: 16px var(--sans); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--sage); padding: 4px; border-radius: 6px; margin-top: 6px; }
+.seg button { border: 0; background: none; min-height: 40px; border-radius: 4px; font-weight: 600; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--white); box-shadow: 0 1px 3px rgba(37,42,36,.12); }
 .seg button:disabled { opacity: .4; cursor: default; }
-.sum { display: flex; justify-content: space-between; margin-top: 18px; font-weight: 600; font-size: 17px; }
-.fees { display: flex; justify-content: space-between; color: var(--ok); font-size: 13.5px; font-weight: 500; margin-top: 6px; }
+.pnote { margin: 8px 0 0; font-size: 13px; color: var(--red); font-weight: 500; }
+.sum { display: flex; justify-content: space-between; margin-top: 20px; font-weight: 600; font-size: 17px; }
+.fees { display: flex; justify-content: space-between; color: var(--green); font-size: 13px; font-weight: 500; margin-top: 6px; }
 .note { color: var(--muted); font-size: 13px; margin-top: 2px; }
+#msg:not(:empty) { margin-top: 14px; }
 
-footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 22px 0 40px; color: var(--muted); font-size: 12.5px; }
-footer strong { color: var(--ink); }
+/* ---- order confirmation */
+.confirm { position: fixed; inset: 0; z-index: 30; background: var(--bg); overflow-y: auto; display: flex; justify-content: center; }
+.cbox { width: 100%; max-width: 480px; padding: 20px 24px calc(36px + env(safe-area-inset-bottom)); }
+.cbox .wm b { font-size: 36px; }
+.cbox .lbl { margin-top: 28px; }
+.check { width: 52px; height: 52px; border-radius: 50%; background: var(--sage); color: var(--green); display: grid; place-items: center; font-size: 26px; font-weight: 500; margin-top: 24px; }
+.cbox h2 { font-size: clamp(32px, 9vw, 40px); line-height: 1.4; margin-top: 20px; }
+.cbox h2 span { display: block; }
+.cbox .rc { font-size: 15px; color: var(--muted); margin-top: 14px; }
+.cbox hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0 20px; }
+.cbox .cn { font-size: 15px; font-weight: 600; }
+.cbox .cd { font-size: 13px; color: var(--muted); margin-top: 10px; }
+.cbox .cd a { text-decoration: none; }
+.cbox .btn { width: 100%; margin-top: 44px; }
+
+/* ---- larger screens */
+@media (min-width: 640px) {
+  :root { --gutter: 32px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .band { grid-template-columns: 1fr 1fr; align-items: center; }
+  .band .btn { grid-column: 1 / -1; }
+  .mhead { grid-template-columns: 1fr minmax(260px, 344px); align-items: center; }
+  .mhead h2 { font-size: 36px; }
+  .fgrid { grid-template-columns: repeat(3, 1fr); }
+  .cbox { padding-top: 32px; }
+  .cbox .lbl { margin-top: 32px; }
+}
+@media (min-width: 640px) and (hover: hover) and (pointer: fine) {
+  .search kbd { display: block; }
+}
+@media (min-width: 760px) {
+  .top .in { height: 88px; gap: 40px; }
+  .wm b { font-size: 44px; }
+  .wm small { font-size: 9px; }
+  .links { display: flex; gap: 40px; margin: 0 auto; }
+  .tel { font-size: 14px; margin-left: 0; }
+  .bagbtn { padding: 0 20px; }
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(0, 606px); align-items: start; gap: 40px; padding-top: 24px; }
+  .hero > div { padding-top: 18px; }
+  .hero img { aspect-ratio: auto; height: 100%; max-height: 352px; min-height: 300px; }
+  .band { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: 32px; padding: 20px 24px; min-height: 100px; }
+  .hours { min-width: 0; }
+  .band .divider { display: block; width: 1px; height: 56px; background: var(--sage-line); }
+  .meal > summary h2 { flex: 0 0 240px; margin-right: 0; }
+  .meal > summary .when { order: 1; width: auto; flex: 1; }
+  .meal > summary::after { order: 2; }
+  .hours summary .lbl { width: 100%; }
+  /* item/cart sheets become centered dialogs */
+  .sheet { top: 50%; bottom: auto; left: 50%; right: auto; width: min(560px, calc(100vw - 48px)); max-height: 86vh; margin: 0; border-radius: 10px; transform: translate(-50%, -46%); opacity: 0; transition: transform .2s ease, opacity .2s ease, visibility 0s .2s; }
+  .sheet.open { transform: translate(-50%, -50%); opacity: 1; transition: transform .2s ease, opacity .2s ease; }
+  .sheet .grab { display: none; }
+  .sheet .head { padding-top: 22px; }
+  .sheet .foot2 { border-radius: 0 0 10px 10px; padding-bottom: 14px; }
+}
+@media (min-width: 960px) {
+  .cols { grid-template-columns: minmax(0, 1fr) 312px; column-gap: 32px; }
+  nav.cats { grid-column: 1 / -1; }
+  .bag { display: block; }
+  .side { position: sticky; top: calc(var(--navh) + 20px); }
+  .bar { display: none; }
+  body.has-bar .foot { padding-bottom: 32px; }
+  .fgrid { grid-template-columns: 1.3fr 1.1fr 1fr; }
+}
+@media (min-width: 1200px) {
+  :root { --gutter: 64px; --navh: 0px; }
+  .cols { grid-template-columns: 192px minmax(0, 1fr) 312px; }
+  nav.cats { grid-column: auto; position: sticky; top: 24px; margin: 0; padding-top: 14px; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: thin; }
+  nav.cats .lbl { display: block; padding: 0 12px 10px; }
+  #nav { flex-direction: column; gap: 2px; overflow: visible; padding: 0; }
+  #nav a { padding: 7px 12px; border-radius: 5px; }
+  #nav a:hover { background: var(--sand); }
+  #nav a.on::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 1px; background: var(--red); }
+  .side { top: 24px; }
+  .band { grid-template-columns: minmax(0, 456px) auto minmax(0, 1fr) auto; padding: 0 24px; }
+  .band .btn { grid-column: auto; width: auto; min-width: 192px; justify-self: end; }
+  .sec, .meal { scroll-margin-top: 24px; }
+}
+@media (max-width: 359px) { .tel { display: none; } .bagbtn { margin-left: auto; } }
+@media (prefers-reduced-motion: reduce) { .sheet, .scrim { transition: none !important; } }
 </style>
 </head>
 <body>
-<header class="wrap">
-  <h1 id="rName">Ginger Japanese Restaurant</h1>
-  <div class="meta" id="rMeta"></div>
-  <div class="status" id="rStatus" hidden><i></i><span></span></div>
-  <div class="direct"><div class="seal" aria-hidden="true">$</div><div><b>Order direct, pay less</b><span>Our in-restaurant menu prices. No delivery-app markups or service fees.</span></div></div>
-  <details class="hours" id="rHours" hidden></details>
-  <div id="topMsg" role="status"></div>
+<header class="top">
+  <div class="wrap in">
+    <a class="wm" href="#" aria-label="Ginger Japanese Restaurant, top of page"><b>ginger</b><small>JAPANESE RESTAURANT</small></a>
+    <div class="links" role="navigation" aria-label="Site">
+      <a href="#order" class="on" aria-current="page">Order online</a>
+      <a href="#visit">Hours &amp; location</a>
+    </div>
+    <a class="tel" id="topTel" href="tel:+17812719988">(781) 271-9988</a>
+    <button class="btn dark bagbtn" id="bagBtn" aria-haspopup="dialog">Your bag&nbsp;·&nbsp;<span id="bagN">0</span></button>
+  </div>
 </header>
-<nav aria-label="Menu categories"><div class="wrap" id="nav"></div></nav>
-<main class="wrap" id="menu"><p class="loading">Loading menu…</p></main>
-<footer class="wrap">
-  <p>Consuming raw or undercooked meats, poultry, seafood, shellfish or eggs may increase your risk of foodborne illness, especially if you have certain medical conditions.</p>
-  <p><strong>Pickup only · Secure checkout by Square</strong></p>
+
+<section class="wrap hero" aria-labelledby="heroTitle">
+  <div>
+    <p class="eyebrow">Freshly prepared. Locally loved.</p>
+    <h1 id="heroTitle"><span>Your favorites,</span> <span>fresh from our kitchen.</span></h1>
+    <p class="who" id="rName">Ginger Japanese Restaurant</p>
+    <p class="addr" id="rMeta"></p>
+    <div class="cta">
+      <a class="btn red" href="#order">Explore the menu <span aria-hidden="true">↓</span></a>
+      <span class="cuisine">JAPANESE / SUSHI / $</span>
+    </div>
+  </div>
+  <img src="img/hero-sushi.png" alt="Salmon and tuna nigiri with avocado maki on a dark ceramic plate" width="1536" height="864" fetchpriority="high">
+</section>
+
+<div class="wrap">
+  <div class="band" id="band">
+    <div class="status closed" id="rStatus" hidden><i aria-hidden="true"></i><b></b><span></span></div>
+    <div class="divider" aria-hidden="true"></div>
+    <details class="hours" id="rHours" hidden></details>
+    <a class="btn dark" id="bandCta" href="#order" hidden></a>
+  </div>
+  <div id="topMsg" role="status"></div>
+</div>
+
+<main class="wrap" id="order">
+  <div class="mhead">
+    <div><h2>Order online</h2><p>A little something for every craving.</p></div>
+    <label class="search"><span class="lbl" hidden>Search the menu</span>
+      <input id="search" type="search" placeholder="Search the menu" aria-label="Search the menu" autocomplete="off" enterkeyhint="search"><kbd aria-hidden="true">⌘ K</kbd></label>
+  </div>
+  <div class="cols">
+    <nav class="cats" aria-label="Menu categories"><p class="lbl">Our menu</p><div id="nav"></div></nav>
+    <div id="menu"><p class="loading">Loading menu…</p></div>
+    <aside class="side" aria-label="Your order">
+      <div class="bag" id="bag">
+        <div class="bagh"><h2>Your bag</h2><span id="bagCount">0 items</span></div>
+        <div id="bagBody"></div>
+        <div class="pill" id="bagPickup" hidden></div>
+        <button class="btn red" id="bagGo" disabled>Add items to continue</button>
+      </div>
+      <div class="direct">
+        <p class="eyebrow">Better direct</p>
+        <h2>Order direct, pay less</h2>
+        <p>Our in-restaurant menu prices. No delivery-app markups or service fees.</p>
+      </div>
+      <div class="help">
+        <b>Need a hand with your order?</b><br>
+        <a id="helpTel" href="tel:+17812719988">Call (781) 271-9988</a>
+        <p>Freshly prepared for pickup in Bedford.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer class="foot" id="visit">
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <span class="wm" aria-hidden="true"><b>ginger</b></span>
+        <p class="brand" id="fName">Ginger Japanese Restaurant</p>
+        <p class="tag2">Your neighborhood favorites. Always better direct.</p>
+      </div>
+      <div>
+        <p class="lbl">Find us</p>
+        <p class="val" id="fAddr"></p>
+        <p class="val"><a id="fTel" href="tel:+17812719988">(781) 271-9988</a></p>
+      </div>
+      <div>
+        <p class="lbl">Today’s hours</p>
+        <div id="fHours"></div>
+        <p class="fnote" id="fNote"></p>
+      </div>
+    </div>
+    <div class="legal">
+      <p>Consuming raw or undercooked meats, poultry, seafood, shellfish or eggs may increase your risk of foodborne illness, especially if you have certain medical conditions.</p>
+      <p>Pickup only · Secure checkout by Square</p>
+    </div>
+  </div>
 </footer>
 
 <div class="bar" id="bar" hidden><button id="viewCart" aria-haspopup="dialog"><span id="barCount"></span><span id="barTotal"></span></button></div>
@@ -165,7 +410,7 @@ footer strong { color: var(--ink); }
   <div class="grab"></div>
   <div class="head"><h2 id="sheetTitle"></h2><button class="x" data-close aria-label="Close">✕</button></div>
   <div class="scroll" id="sheetBody"></div>
-  <div class="foot">
+  <div class="foot2">
     <div class="step"><button id="qMinus" aria-label="Decrease quantity">−</button><span id="qVal" aria-live="polite">1</span><button id="qPlus" aria-label="Increase quantity">+</button></div>
     <button class="primary" id="sheetAdd"></button>
   </div>
@@ -176,6 +421,7 @@ footer strong { color: var(--ink); }
   <div class="head"><h2 id="cartTitle">Your order</h2><button class="x" data-close aria-label="Close">✕</button></div>
   <div class="scroll">
     <div id="lines"></div>
+    <p class="none" id="cartEmpty" hidden>Your bag is empty. Add your favorites from the menu.</p>
     <div class="field" id="timeField">Pickup time
       <div class="seg" role="group" aria-label="Pickup time">
         <button type="button" id="tAsap" aria-pressed="true">ASAP</button>
@@ -191,7 +437,22 @@ footer strong { color: var(--ink); }
     <div class="note">Tax and optional tip added at checkout</div>
     <div id="msg" role="alert"></div>
   </div>
-  <div class="foot"><button class="primary pink" id="checkout">Checkout with Square</button></div>
+  <div class="foot2"><button class="primary" id="checkout">Checkout with Square</button></div>
+</div>
+
+<div class="confirm" id="confirm" role="dialog" aria-modal="true" aria-labelledby="cTitle" hidden>
+  <div class="cbox">
+    <span class="wm" aria-hidden="true"><b>ginger</b></span>
+    <p class="lbl">Order confirmation</p>
+    <div class="check" aria-hidden="true">✓</div>
+    <h2 id="cTitle"><span>Thank you!</span> <span>Your order is in.</span></h2>
+    <p class="rc">Square will email or text your receipt.</p>
+    <hr>
+    <p class="cn" id="cName">Ginger Japanese Restaurant</p>
+    <p class="cd" id="cAddr"></p>
+    <p class="cd" id="cTel"></p>
+    <button class="btn red" id="cBack">Back to menu</button>
+  </div>
 </div>
 
 <script type="module">
@@ -200,8 +461,11 @@ const $ = (s) => document.querySelector(s);
 const money = (c) => "$" + (c / 100).toFixed(2);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeUrl = (u) => (/^https:\/\//i.test(u ?? "") ? u : "");
+const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
 const CART_KEY = "ginger-cart-v1";
 const CHECKOUT_KEY = "ginger-checkout-started"; // sessionStorage, set when we redirect to Square
+// Left sidebar layout (wide screens): the category nav is a column, not a sticky bar.
+const sidebar = matchMedia("(min-width: 1200px)");
 
 // ---- state
 let data = null;            // /api/menu response
@@ -209,6 +473,7 @@ let byItem = new Map();     // item id -> item
 let byVar = new Map();      // variation id -> item
 let cart = new Map();       // key -> { id: variationId, modifiers: [ids], qty }
 let pickupMode = "asap";
+let query = "";             // menu search
 const keyOf = (varId, mods) => varId + "|" + [...mods].sort().join(",");
 
 function saveCart() {
@@ -255,23 +520,45 @@ function priceRange(item) {
 }
 const priceLabel = (item) => priceRange(item).map(money).join("–");
 
-// ---- header
+// ---- restaurant info, status band, footer
 function fmtPhone(p) {
   const d = (p || "").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
   return d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : p;
 }
+function setTel(a, phone, prefix = "") {
+  const tel = (phone || "").replace(/[^\d+]/g, "");
+  a.hidden = !tel;
+  if (!tel) return;
+  a.href = "tel:" + tel;
+  a.textContent = prefix + fmtPhone(phone);
+}
+// "Closed now · schedule a pickup from …" and friends, shared by the band and the footer.
+function statusText(p) {
+  if (p.asap.available) return { open: true, title: "Open now", sub: `Pickup in about ${p.asap.minutes} min`, cta: "Start your order" };
+  if (p.slots.length) return { open: false, title: "Closed now", sub: `Schedule a pickup from ${p.slots[0].label.toLowerCase()}`, cta: "Schedule pickup" };
+  return { open: false, title: "Closed", sub: "Online ordering is closed right now", cta: "" };
+}
 function renderHeader() {
   const r = data.restaurant;
-  if (r.name) { $("#rName").textContent = r.name; document.title = `${r.name} · Order Pickup`; }
-  const tel = (r.phone || "").replace(/[^\d+]/g, "");
-  $("#rMeta").innerHTML = [esc(r.address), r.phone ? `<a href="tel:${esc(tel)}">${esc(fmtPhone(r.phone))}</a>` : ""].filter(Boolean).join(" · ");
+  if (r.name) {
+    for (const id of ["#rName", "#fName", "#cName"]) $(id).textContent = r.name;
+    document.title = `${r.name} · Order Pickup`;
+  }
+  for (const id of ["#rMeta", "#fAddr", "#cAddr"]) $(id).textContent = r.address || "";
+  setTel($("#topTel"), r.phone);
+  setTel($("#fTel"), r.phone);
+  setTel($("#helpTel"), r.phone, "Call ");
+  $("#cTel").innerHTML = r.phone ? `Questions? Call <a href="tel:${esc((r.phone || "").replace(/[^\d+]/g, ""))}">${esc(fmtPhone(r.phone))}</a>` : "";
   renderHours(r);
-  const p = data.pickup;
+  const s = statusText(data.pickup);
   const st = $("#rStatus");
   st.hidden = false;
-  st.classList.toggle("closed", !p.asap.available);
-  st.querySelector("span").textContent = p.asap.available ? `Open · Pickup in about ${p.asap.minutes} min`
-    : p.slots.length ? `Closed now · Schedule a pickup from ${p.slots[0].label.toLowerCase()}` : "Online ordering is closed";
+  st.classList.toggle("closed", !s.open);
+  st.querySelector("b").textContent = s.title;
+  st.querySelector("span").textContent = s.sub;
+  $("#bandCta").hidden = !s.cta;
+  $("#bandCta").textContent = s.cta;
+  $("#fNote").textContent = s.sub;
 }
 
 // Today's hours in one line ("11am – 2:30pm, then 4pm – 9:30pm") plus a
@@ -280,44 +567,52 @@ function renderHours(r) {
   const rows = r.hoursTable || [];
   const el = $("#rHours");
   el.hidden = !rows.length;
-  if (!rows.length) return;
   const todayRow = rows.find((g) => g.days.includes(r.today));
+  $("#fHours").innerHTML = !todayRow ? "" : todayRow.times.length
+    ? todayRow.times.map((t) => `<p class="val">${esc(t)}</p>`).join("") : `<p class="val">Closed today</p>`;
+  if (!rows.length) return;
   const todayText = !todayRow ? "" : todayRow.times.length ? todayRow.times.join(", then ") : "Closed";
-  el.innerHTML = `<summary>${todayText ? `<span><b>Today</b> ${esc(todayText)}</span>` : ""}<u>All hours</u></summary>
+  el.innerHTML = `<summary><span class="lbl">Today’s hours</span>${todayText ? `<b>${esc(todayText)}</b>` : ""}<u>All hours</u></summary>
     <table><tbody>${rows.map((g) => `<tr class="${g === todayRow ? "today" : ""}"><th scope="row">${esc(g.label)}</th><td>${g.times.length ? g.times.map((t) => `<span>${esc(t)}</span>`).join("") : "Closed"}</td></tr>`).join("")}</tbody></table>`;
 }
+// Close the hours table on an outside click.
+document.addEventListener("click", (e) => { if ($("#rHours").open && !e.target.closest("#rHours")) $("#rHours").open = false; });
 
 // ---- menu
 const isSimple = (it) => it.variations.length === 1 && !it.modifierLists.length;
 const qtyOfSimple = (it) => cart.get(keyOf(it.variations[0].id, []))?.qty ?? 0;
+const matches = (it) => !query || `${it.name} ${it.desc ?? ""}`.toLowerCase().includes(query);
 
 // Lunch sections sit in one collapsible Lunch group (its hours in the header)
 // above the rest of the menu. It starts open during lunch hours and collapsed
-// otherwise; the customer's toggle is kept across re-renders.
+// otherwise; the customer's toggle is kept across re-renders. A search shows
+// only matching dishes, and opens the Lunch group if it has any.
 let mealOpen = null; // { lunch }
 function renderMenu() {
-  const cats = data.categories.map((c, i) => ({ ...c, id: "c" + i }));
+  const cats = data.categories.map((c, i) => ({ ...c, id: "c" + i, items: c.items.filter(matches) })).filter((c) => c.items.length);
   const section = (c) => `
-    <section id="${c.id}" aria-labelledby="h${c.id}"><h2 id="h${c.id}">${esc(c.name)}</h2>
+    <section class="sec" id="${c.id}" aria-labelledby="h${c.id}">
+      <div class="sech"><h2 id="h${c.id}">${esc(c.name)}</h2><small>${plural(c.items.length, "option")}</small></div>
       <div class="grid">${c.items.map(card).join("")}</div></section>`;
   const lunch = cats.filter((c) => c.lunch), rest = cats.filter((c) => !c.lunch);
   let pills;
   if (!cats.length) {
     pills = [];
-    $("#menu").innerHTML = `<p class="error">No items are available online right now.</p>`;
+    $("#menu").innerHTML = query
+      ? `<p class="none">No dishes match “${esc(query)}”. Try another word, or call us and we’ll help.</p>`
+      : `<p class="error">No items are available online right now.</p>`;
   } else if (!lunch.length) {
     pills = cats.map((c) => [c.id, c.name]);
     $("#menu").innerHTML = cats.map(section).join("");
   } else {
     if (!mealOpen) mealOpen = { lunch: !!(data.pickup?.asap?.available && data.pickup.asap.lunch) };
-    const group = (key, title, when, list) => `
-      <details class="meal" id="g-${key}" data-meal="${key}" ${mealOpen[key] ? "open" : ""}>
-        <summary><h2>${title}</h2>${when ? `<span class="when">${esc(when)}</span>` : ""}</summary>
-        ${list.map(section).join("")}
-      </details>`;
+    const open = mealOpen.lunch || !!query;
     pills = [["g-lunch", "Lunch"], ...rest.map((c) => [c.id, c.name])];
-    $("#menu").innerHTML = group("lunch", "Lunch", data.pickup?.lunchLabel ? cap1(data.pickup.lunchLabel) : "", lunch)
-      + rest.map(section).join("");
+    $("#menu").innerHTML = `
+      <details class="meal" id="g-lunch" data-meal="lunch" ${open ? "open" : ""}>
+        <summary><h2>Lunch</h2>${data.pickup?.lunchLabel ? `<span class="when">${esc(cap1(data.pickup.lunchLabel))}</span>` : ""}</summary>
+        ${lunch.map(section).join("")}
+      </details>` + rest.map(section).join("");
   }
   $("#nav").innerHTML = pills.map(([id, name], i) => `<a href="#${id}" class="${i ? "" : "on"}" ${i ? "" : 'aria-current="true"'}>${esc(name)}</a>`).join("");
   spyCat();
@@ -326,7 +621,7 @@ const cap1 = (s) => s[0].toUpperCase() + s.slice(1);
 // <details> "toggle" doesn't bubble: listen in the capture phase.
 $("#menu").addEventListener("toggle", (e) => {
   const key = e.target.dataset?.meal;
-  if (key && mealOpen) { mealOpen[key] = e.target.open; spyCat(); }
+  if (key && mealOpen && !query) { mealOpen[key] = e.target.open; spyCat(); }
 }, true);
 function card(it) {
   const out = it.variations.every((v) => v.soldOut);
@@ -336,16 +631,28 @@ function card(it) {
     const q = qtyOfSimple(it);
     action = q
       ? `<div class="step"><button data-dec="${esc(it.id)}" aria-label="Remove one ${esc(it.name)}">−</button><span>${q}</span><button data-inc="${esc(it.id)}" aria-label="Add one more ${esc(it.name)}" ${q >= 20 ? "disabled" : ""}>+</button></div>`
-      : `<button class="add" data-inc="${esc(it.id)}" aria-label="Add ${esc(it.name)}">Add</button>`;
-  } else action = `<button class="add ghost" data-open="${esc(it.id)}" aria-label="Choose options for ${esc(it.name)}">Choose</button>`;
+      : `<button class="add plus" data-inc="${esc(it.id)}" aria-label="Add ${esc(it.name)}">Add</button>`;
+  } else action = `<button class="add" data-open="${esc(it.id)}" aria-label="Choose options for ${esc(it.name)}">Choose</button>`;
   const img = safeUrl(it.image);
   return `<div class="card ${out ? "soldout" : ""} ${!out && !isSimple(it) ? "tap" : ""}" ${!out && !isSimple(it) ? `data-open="${esc(it.id)}"` : ""}>
     <div class="body"><h3>${esc(it.name)}</h3>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
       <div class="row"><span class="price">${priceLabel(it)}</span>${action}</div></div>
     ${img ? `<img class="photo" src="${esc(img)}" alt="" loading="lazy" decoding="async">` : ""}</div>`;
 }
-// Category nav: a click highlights its pill at once and scrolls there; while
-// that scroll runs, scrolling doesn't move the highlight. Otherwise the pill is
+
+// Search: filters as you type; ⌘K / Ctrl+K focuses it (wide screens show the hint).
+let searchTimer = null;
+$("#search").addEventListener("input", (e) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { query = e.target.value.trim().toLowerCase(); if (data) renderMenu(); }, 120);
+});
+$("#search").addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && e.target.value) { e.stopPropagation(); e.target.value = ""; query = ""; if (data) renderMenu(); }
+  if (e.key === "Enter") e.target.blur(); // closes the phone keyboard so results show
+});
+
+// Category nav: a click highlights its link at once and scrolls there; while
+// that scroll runs, scrolling doesn't move the highlight. Otherwise the link is
 // the last section whose heading has passed under the nav, or the last section
 // once the page is scrolled to the bottom (short sections can't reach the top).
 let navLock = null;
@@ -357,7 +664,11 @@ function setActiveCat(id) {
     a.classList.toggle("on", hit);
     if (hit) { a.setAttribute("aria-current", "true"); on = a; } else a.removeAttribute("aria-current");
   }
-  if (on) nav.scrollTo({ left: on.offsetLeft - (nav.clientWidth - on.offsetWidth) / 2, behavior: "smooth" });
+  if (!on) return;
+  if (sidebar.matches) {
+    const col = $("nav.cats");
+    if (on.offsetTop < col.scrollTop || on.offsetTop + on.offsetHeight > col.scrollTop + col.clientHeight) col.scrollTo({ top: on.offsetTop - col.clientHeight / 2, behavior: "smooth" });
+  } else nav.scrollTo({ left: on.offsetLeft - (nav.clientWidth - on.offsetWidth) / 2, behavior: "smooth" });
 }
 function spyCat() {
   if (navLock) return;
@@ -365,7 +676,7 @@ function spyCat() {
     .map((a) => document.getElementById(a.getAttribute("href").slice(1)))
     .filter((el) => el && el.getClientRects().length);
   if (!secs.length) return;
-  const line = $("nav").getBoundingClientRect().bottom + 8;
+  const line = sidebar.matches ? 48 : $("nav.cats").getBoundingClientRect().bottom + 16;
   let cur = secs[0];
   for (const sec of secs) if (sec.getBoundingClientRect().top <= line) cur = sec;
   if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) cur = secs.at(-1);
@@ -437,7 +748,7 @@ function updateSheet() {
   const mods = [...cur.mods];
   const err = validateLine(cur.it, cur.varId, mods, cur.qty);
   $("#sheetAdd").disabled = !!err;
-  $("#sheetAdd").textContent = err ? "Make required choices" : `Add · ${money(linePrice({ id: cur.varId, modifiers: mods, qty: cur.qty }))}`;
+  $("#sheetAdd").textContent = err ? "Make required choices" : `Add to bag · ${money(linePrice({ id: cur.varId, modifiers: mods, qty: cur.qty }))}`;
 }
 $("#sheetBody").addEventListener("change", (e) => {
   const t = e.target;
@@ -484,24 +795,36 @@ function bump(k, d) {
   render();
   if (!cart.size) closeSheets();
 }
+// One cart line, for the cart sheet (cls "line") or the bag panel ("bline").
+function lineHtml(k, l, cls) {
+  const it = byVar.get(l.id);
+  const v = it.variations.find((x) => x.id === l.id);
+  const mods = modsOf(it).filter((m) => l.modifiers.includes(m.id)).map((m) => m.name);
+  const sub = [it.variations.length > 1 ? v.label : "", ...mods].filter(Boolean).join(", ");
+  return `<div class="${cls}"><div class="info"><strong>${esc(it.name)}</strong>${sub ? `<div class="mods">${esc(sub)}</div>` : ""}</div>
+    <div class="right"><span class="price">${money(linePrice(l))}</span>
+    <div class="step"><button data-bump="${esc(k)}" data-d="-1" aria-label="Remove one ${esc(it.name)}">−</button><span>${l.qty}</span><button data-bump="${esc(k)}" data-d="1" aria-label="Add one more ${esc(it.name)}" ${l.qty >= 20 ? "disabled" : ""}>+</button></div></div></div>`;
+}
 function renderCart() {
   const lines = [...cart.entries()];
   const n = lines.reduce((s, [, l]) => s + l.qty, 0);
   const total = lines.reduce((s, [, l]) => s + linePrice(l), 0);
   $("#bar").hidden = !n;
   document.body.classList.toggle("has-bar", !!n);
-  $("#barCount").textContent = `View order · ${n} item${n === 1 ? "" : "s"}`;
+  $("#barCount").textContent = `View order · ${plural(n, "item")}`;
   $("#barTotal").textContent = money(total);
+  $("#bagN").textContent = n;
+  $("#bagBtn").setAttribute("aria-label", `Your bag, ${plural(n, "item")}`);
   $("#subtotal").textContent = money(total);
-  $("#lines").innerHTML = lines.map(([k, l]) => {
-    const it = byVar.get(l.id);
-    const v = it.variations.find((x) => x.id === l.id);
-    const mods = modsOf(it).filter((m) => l.modifiers.includes(m.id)).map((m) => m.name);
-    const sub = [it.variations.length > 1 ? v.label : "", ...mods].filter(Boolean).join(", ");
-    return `<div class="line"><div class="info"><strong>${esc(it.name)}</strong>${sub ? `<div class="mods">${esc(sub)}</div>` : ""}</div>
-      <div class="right"><span class="price">${money(linePrice(l))}</span>
-      <div class="step"><button data-bump="${esc(k)}" data-d="-1" aria-label="Remove one ${esc(it.name)}">−</button><span>${l.qty}</span><button data-bump="${esc(k)}" data-d="1" aria-label="Add one more ${esc(it.name)}" ${l.qty >= 20 ? "disabled" : ""}>+</button></div></div></div>`;
-  }).join("");
+  $("#lines").innerHTML = lines.map(([k, l]) => lineHtml(k, l, "line")).join("");
+  $("#cartEmpty").hidden = !!n;
+  // Bag panel (wide screens)
+  $("#bagCount").textContent = plural(n, "item");
+  $("#bagBody").innerHTML = n
+    ? `<div class="blines">${lines.map(([k, l]) => lineHtml(k, l, "bline")).join("")}</div><div class="bsum"><span>Subtotal</span><span>${money(total)}</span></div>`
+    : `<p class="big">A good meal<br>starts here.</p><p class="sub">Add your favorites from the menu to get your order started.</p>`;
+  $("#bagGo").disabled = !n;
+  $("#bagGo").textContent = n ? "Continue to checkout" : "Add items to continue";
 }
 function render() { renderMenu(); renderCart(); if (data?.pickup) renderPickup(); }
 
@@ -533,7 +856,13 @@ function renderPickup() {
   const note = $("#lunchNote");
   note.hidden = !lunch;
   note.textContent = lunch ? `Your order has lunch-only items, so pickup is ${p.lunchLabel ?? "at lunch"}.` : "";
-  $("#checkout").disabled = none;
+  $("#checkout").disabled = none || !cart.size;
+  // Bag panel summary of the pickup time.
+  const pill = $("#bagPickup");
+  pill.hidden = false;
+  pill.textContent = none ? "Online ordering is closed right now"
+    : pickupMode === "asap" ? `Pickup · ASAP, about ${p.asap.minutes} min`
+    : `Pickup · ${(slots.find((s) => s.at === sel.value) ?? slots[0]).label}`;
   if (!none && pickupMsg) { showMsg(""); pickupMsg = false; } // clear our own message only
   if (none) pickupMsg = true;
   if (none) showMsg(lunch
@@ -542,6 +871,7 @@ function renderPickup() {
 }
 $("#tAsap").onclick = () => { pickupMode = "asap"; renderPickup(); };
 $("#tLater").onclick = () => { pickupMode = "later"; renderPickup(); };
+$("#slot").onchange = () => renderPickup();
 
 // ---- checkout
 const showMsg = (text, ok) => { $("#msg").innerHTML = text ? `<div class="banner ${ok ? "ok" : ""}">${esc(text)}</div>` : ""; };
@@ -603,8 +933,11 @@ function closeSheets(restore = true) {
   document.body.classList.remove("locked");
   if (restore && lastFocus?.isConnected) lastFocus.focus({ preventScroll: true });
 }
+function openCart() { if (data) renderPickup(); openSheet("#cartSheet"); }
+function closeConfirm() { $("#confirm").hidden = true; document.body.classList.remove("locked"); $("#search").focus({ preventScroll: true }); }
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeSheets();
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); closeSheets(false); $("#search").focus(); $("#search").select(); return; }
+  if (e.key === "Escape") { if (!$("#confirm").hidden) closeConfirm(); else closeSheets(); }
   if (e.key === "Tab") { // keep focus inside an open sheet
     const s = document.querySelector(".sheet.open");
     if (!s) return;
@@ -628,7 +961,10 @@ function focusStep(id) {
   const sel = `[data-inc="${CSS.escape(id)}"]`;
   (document.querySelector(sel) || document.querySelector(`[data-dec="${CSS.escape(id)}"]`))?.focus({ preventScroll: true });
 }
-$("#viewCart").onclick = () => { renderPickup(); openSheet("#cartSheet"); };
+$("#viewCart").onclick = openCart;
+$("#bagGo").onclick = openCart;
+$("#bagBtn").onclick = openCart;
+$("#cBack").onclick = closeConfirm;
 $("#pname").addEventListener("input", () => { if ($("#pname").value.trim()) showMsg(""); });
 
 // ---- boot
@@ -656,8 +992,11 @@ async function loadMenu(fresh) {
   // bookmarked or shared ?status=success just loads the saved cart.
   if (success && started) {
     try { localStorage.removeItem(CART_KEY); } catch {}
-    $("#topMsg").innerHTML = `<div class="banner ok">Thank you! Your order is in. Square will email or text your receipt.</div>`;
+    $("#confirm").hidden = false;
+    document.body.classList.add("locked");
+    $("#cBack").focus();
   } else loadCart();
+  if (!cart.size) renderCart(); // empty bag state; lines need the menu first
   try {
     await loadMenu();
   } catch (e) {
@@ -669,6 +1008,7 @@ async function loadMenu(fresh) {
   renderHeader();
   render();
   renderPickup();
+  sidebar.addEventListener("change", spyCat);
 })();
 </script>
 </body>

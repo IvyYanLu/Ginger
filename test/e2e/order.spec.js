@@ -36,9 +36,9 @@ test("header, categories and no horizontal scroll at 375px", async ({ page }) =>
   await page.setViewportSize({ width: 375, height: 760 });
   await page.goto("/");
   await expect(page.locator("#rMeta")).toContainText("1 Main St, Bedford, MA 01730");
-  await expect(page.getByRole("link", { name: "(781) 555-0100" })).toHaveAttribute("href", "tel:+17815550100");
+  await expect(page.locator("header").getByRole("link", { name: "(781) 555-0100" })).toHaveAttribute("href", "tel:+17815550100");
   const hours = page.locator("#rHours");
-  await expect(hours.locator("summary")).toHaveText("Today 11am – 2:30pm, then 4pm – 10pmAll hours");
+  await expect(hours.locator("summary")).toHaveText("Today’s hours11am – 2:30pm, then 4pm – 10pmAll hours");
   await expect(hours.locator("table")).toBeHidden();
   await hours.getByText("All hours").click();
   await expect(hours.locator("tr")).toHaveText(["Mon–Thu11am – 2:30pm4pm – 9:30pm", "Fri11am – 2:30pm4pm – 10pm", "Sat11am – 10pm", "Sun12pm – 9:30pm"]);
@@ -74,9 +74,9 @@ test("bottom sheet with a required list, max lock, live price; cart total; check
   // Defaults: Eel + Spicy checked (max 2), so Tobiko is locked.
   await expect(sheet.getByRole("checkbox", { name: /Tobiko/ })).toBeDisabled();
   await sheet.getByText("Brown rice").click();
-  await expect(add).toHaveText("Add · $11.00"); // 9.00 + 1.00 + 0.50 + 0.50
+  await expect(add).toHaveText("Add to bag · $11.00"); // 9.00 + 1.00 + 0.50 + 0.50
   await sheet.getByRole("button", { name: "Increase quantity" }).click();
-  await expect(add).toHaveText("Add · $22.00");
+  await expect(add).toHaveText("Add to bag · $22.00");
   await add.click();
   await expect(page.locator("#bar")).toContainText("3 items$28.00");
 
@@ -150,7 +150,9 @@ test("cart persists; ?status=success after our checkout clears it and cleans the
   // A return from a checkout this tab started clears it.
   await page.evaluate(() => sessionStorage.setItem("ginger-checkout-started", "1"));
   await page.goto("/?status=success");
-  await expect(page.locator("#topMsg")).toContainText("Thank you");
+  await expect(page.locator("#confirm")).toContainText("Thank you!");
+  await page.getByRole("button", { name: "Back to menu" }).click();
+  await expect(page.locator("#confirm")).toBeHidden();
   await expect(page.locator("#bar")).toBeHidden();
   expect(new URL(page.url()).search).toBe("");
 });
