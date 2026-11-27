@@ -71,7 +71,7 @@ These are implemented in `lib/pickup.js`, and every rule has a test in `test/pic
   - They end at the last pickup time.
   - None is ever earlier than now + prep time.
 - **Prep time** comes from the time the order is placed, for ASAP orders. A scheduled order gets the prep time of its pickup time, sent as `prep_time_duration`.
-- **Lunch-only items** are shown in a collapsible **Lunch** group (with the lunch hours in its header); everything else is in **Dinner**. The group for the current meal starts open. With a lunch item in the cart, only pickup times inside `LUNCH_HOURS` are offered (ASAP only if it lands in lunch), and the server returns 409 for any other time.
+- **Lunch-only items** are shown in a collapsible **Lunch** group (with the lunch hours in its header); the rest of the menu follows, always shown. The Lunch group starts open during lunch hours and collapsed otherwise. With a lunch item in the cart, only pickup times inside `LUNCH_HOURS` are offered (ASAP only if it lands in lunch), and the server returns 409 for any other time.
 - **Re-checked at checkout:** the server rebuilds the slot list, and a time that's no longer offered returns 409.
 
 ## Local development

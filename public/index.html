@@ -62,7 +62,7 @@ nav a.on { background: var(--ink); color: var(--cream); }
 main { padding-bottom: 40px; min-height: 40vh; }
 section { padding-top: 26px; scroll-margin-top: 58px; }
 section h2 { font-size: 22px; margin-bottom: 12px; }
-/* Lunch / Dinner groups */
+/* Lunch group */
 .meal { margin-top: 18px; scroll-margin-top: 58px; }
 .meal > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); background: var(--ink); color: var(--cream); }
 .meal > summary::-webkit-details-marker { display: none; }
@@ -313,16 +313,16 @@ function renderHours(r) {
 const isSimple = (it) => it.variations.length === 1 && !it.modifierLists.length;
 const qtyOfSimple = (it) => cart.get(keyOf(it.variations[0].id, []))?.qty ?? 0;
 
-// With lunch sections, the menu is two collapsible groups: Lunch (its hours in
-// the header) and Dinner (everything else). Lunch starts open during lunch
-// hours, Dinner otherwise; the customer's toggles are kept across re-renders.
-let mealOpen = null; // { lunch, dinner }
+// Lunch sections sit in one collapsible Lunch group (its hours in the header)
+// above the rest of the menu. It starts open during lunch hours and collapsed
+// otherwise; the customer's toggle is kept across re-renders.
+let mealOpen = null; // { lunch }
 function renderMenu() {
   const cats = data.categories.map((c, i) => ({ ...c, id: "c" + i }));
   const section = (c) => `
     <section id="${c.id}" aria-labelledby="h${c.id}"><h2 id="h${c.id}">${esc(c.name)}</h2>
       <div class="grid">${c.items.map(card).join("")}</div></section>`;
-  const lunch = cats.filter((c) => c.lunch), dinner = cats.filter((c) => !c.lunch);
+  const lunch = cats.filter((c) => c.lunch), rest = cats.filter((c) => !c.lunch);
   let pills;
   if (!cats.length) {
     pills = [];
@@ -331,18 +331,15 @@ function renderMenu() {
     pills = cats.map((c) => [c.id, c.name]);
     $("#menu").innerHTML = cats.map(section).join("");
   } else {
-    if (!mealOpen) {
-      const now = !!(data.pickup?.asap?.available && data.pickup.asap.lunch);
-      mealOpen = { lunch: now, dinner: !now };
-    }
+    if (!mealOpen) mealOpen = { lunch: !!(data.pickup?.asap?.available && data.pickup.asap.lunch) };
     const group = (key, title, when, list) => `
       <details class="meal" id="g-${key}" data-meal="${key}" ${mealOpen[key] ? "open" : ""}>
         <summary><h2>${title}</h2>${when ? `<span class="when">${esc(when)}</span>` : ""}</summary>
         ${list.map(section).join("")}
       </details>`;
-    pills = [["g-lunch", "Lunch"], ...dinner.map((c) => [c.id, c.name])];
+    pills = [["g-lunch", "Lunch"], ...rest.map((c) => [c.id, c.name])];
     $("#menu").innerHTML = group("lunch", "Lunch", data.pickup?.lunchLabel ? cap1(data.pickup.lunchLabel) : "", lunch)
-      + (dinner.length ? group("dinner", "Dinner", "", dinner) : "");
+      + rest.map(section).join("");
   }
   $("#nav").innerHTML = pills.map(([id, name], i) => `<a href="#${id}" class="${i ? "" : "on"}" ${i ? "" : 'aria-current="true"'}>${esc(name)}</a>`).join("");
   spyCat();
