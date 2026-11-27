@@ -234,6 +234,15 @@ describe("lunch-only items", () => {
   test("lunch-only = in a lunch category and in no other menu group", () => {
     assert.deepEqual(flags(lunchEnv), { Gyudon: true, "Gyu Donburi": false, "Yaki Soba": false, "Chicken Katsu Lunch Box": true });
   });
+  test("lunch-only items are listed under their lunch category", () => {
+    const sections = Object.fromEntries(normalizeMenu(objs, {}, lunchEnv).menu.categories.map((c) => [c.name, c.items.map((i) => i.name)]));
+    assert.deepEqual(sections, {
+      "Don Buri": ["Gyu Donburi"],
+      "Lunch Boxes": ["Chicken Katsu Lunch Box"],
+      "Lunch Don & Udon": ["Gyudon"],
+      "Udon / Soba / Ramen": ["Yaki Soba"],
+    });
+  });
   test("needs LUNCH_HOURS too, or nothing is lunch-only", () => {
     assert.deepEqual(flags({ LUNCH_ONLY_CATEGORIES: lunchEnv.LUNCH_ONLY_CATEGORIES }), { Gyudon: false, "Gyu Donburi": false, "Yaki Soba": false, "Chicken Katsu Lunch Box": false });
   });

@@ -7,7 +7,7 @@ HIDE_CATEGORIES=Beer,Red Wine,White Wine,Sake,Signature Cocktails,Alcoholic Drin
 HIDE_MODIFIER_LISTS=
 HIDE_MODIFIERS=$1 Key,$1.5 Key,$2 Key,$3 Key
 # "*" = all other categories, A–Z
-CATEGORY_ORDER=Hot Appetizers,Cold Appetizers,Soups & Salads,Maki Roll,Special Roll,Cucumber Hand Roll,Nigiri,Sashimi,Sushi Bar Specials,Entrees Sushi Bar,House Specials,Teriyaki,Tempura,Don Buri,Don & Udon,Udon / Soba / Ramen,Yakimeshi,Nabemono,Lunch Boxes,Lunch Box Combo,*,Side Order,Desserts,Non Alcoholic
+CATEGORY_ORDER=Lunch Boxes,Lunch Box Combo,Lunch Sushi Bar Specials,Lunch Don & Udon,Hot Appetizers,Cold Appetizers,Soups & Salads,Maki Roll,Special Roll,Cucumber Hand Roll,Nigiri,Sashimi,Sushi Bar Specials,Entrees Sushi Bar,House Specials,Teriyaki,Tempura,Don Buri,Don & Udon,Udon / Soba / Ramen,Yakimeshi,Nabemono,*,Side Order,Desserts,Non Alcoholic
 PREP_TIME=PT20M
 # Longer prep in busy windows (location time zone). Separate rules with ";".
 BUSY_PREP_TIME=FRI-SAT 17:00-19:00 PT30M

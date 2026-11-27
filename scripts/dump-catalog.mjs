@@ -33,6 +33,22 @@ const flag = (cond, label) => (cond ? ` [${label}]` : "");
 
 const fmtTime = (t) => (t ?? "").slice(0, 5);
 
+// Name key that a lunch item and its all-day version share:
+// "Gyudon" / "Gyu Donburi", "Chicken Teriyaki Lunch Box" / "Chicken Teriyaki D",
+// "Sashimi Lunch" / "Sashimi Dinner", "Nabe Yaki Udon" / "Nabeyaki Udon".
+const PAIR_DROP = new Set(["lunch", "dinner", "box", "d"]);
+export function pairKey(name) {
+  const words = (name ?? "").toLowerCase().split(/[^a-z0-9&]+/);
+  return words.filter((w) => w && !PAIR_DROP.has(w)).join("").replace(/buri$/, "");
+}
+const dollars = (c) => `$${(c / 100).toFixed(2)}`;
+const minPrice = (it) => Math.min(...it.variations.map((v) => v.price));
+const priceRange = (it) => {
+  const ps = it.variations.map((v) => v.price);
+  const lo = Math.min(...ps), hi = Math.max(...ps);
+  return lo === hi ? dollars(lo) : `${dollars(lo)}–${dollars(hi)}`;
+};
+
 export function buildReport(objects, location, locationId, env = {}) {
   const L = [];
   const warn = [];
@@ -144,7 +160,19 @@ export function buildReport(objects, location, locationId, env = {}) {
     L.push("", `=== ONLINE MENU (${shown.length} items in ${menu.categories.length} sections) ===`);
     for (const c of menu.categories) L.push(`  ${c.name.padEnd(32)} ${String(c.items.length).padStart(3)} items`);
     const lunch = shown.filter((it) => it.lunchOnly);
-    L.push("", `=== LUNCH ONLY (${lunch.length}) ===`, ...lunch.map((it) => `  ${it.name}  (${it.cat})`));
+    const allDay = new Map(); // pairKey -> all-day items
+    for (const it of shown) {
+      if (it.lunchOnly) continue;
+      const k = pairKey(it.name);
+      allDay.set(k, [...(allDay.get(k) ?? []), it]);
+    }
+    L.push("", `=== LUNCH ONLY (${lunch.length}), with the all-day version when one matches by name ===`);
+    for (const it of lunch) {
+      const twins = allDay.get(pairKey(it.name)) ?? [];
+      const flags = new Set(twins.map((t) => (minPrice(t) === minPrice(it) ? "  ! SAME PRICE" : minPrice(t) < minPrice(it) ? "  ! LUNCH COSTS MORE" : "")));
+      const vs = twins.length ? `   vs  ${twins.map((t) => `${t.name} ${priceRange(t)} [${t.cat}]`).join(", ")}` : "";
+      L.push(`  ${`${it.name} ${priceRange(it)}`.padEnd(40)} [${it.cat}]${vs}${[...flags].join("")}`);
+    }
   }
 
   L.push("", `=== WARNINGS (${warn.length}) ===`, ...(warn.length ? [...new Set(warn)].map((w) => "  ! " + w) : ["  none"]));

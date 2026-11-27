@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { buildReport, parseDevVars } from "../scripts/dump-catalog.mjs";
+import { buildReport, parseDevVars, pairKey } from "../scripts/dump-catalog.mjs";
 import { listCatalog } from "../lib/square.js";
 
 const fx = JSON.parse(readFileSync(new URL("./fixtures/catalog-small.json", import.meta.url)));
@@ -51,4 +51,28 @@ test("required TEXT lists don't warn (the site skips them); separator rows are m
   const r = buildReport(objs, null, "LOC1");
   assert.ok(!r.includes('requires 1 from "Special Instructions"'), r);
   assert.ok(r.includes("(separator row: hidden online)"), r);
+});
+
+test("pairKey matches lunch and all-day names", () => {
+  const same = [["Gyudon", "Gyu Donburi"], ["Katsu Don", "Katsu Don Buri"], ["Nabe Yaki Udon", "Nabeyaki Udon"],
+    ["Chicken Teriyaki Lunch Box", "Chicken Teriyaki D"], ["Sashimi Lunch", "Sashimi Dinner"], ["Chirashi Lunch", "Chirashi"],
+    ["Sushi & Sashimi Lunch", "Sushi & Sashimi"], ["Tonkotsu Ramen", "Tonkotsu Ramen"]];
+  for (const [a, b] of same) assert.equal(pairKey(a), pairKey(b), `${a} / ${b}`);
+  assert.notEqual(pairKey("Curry Rice"), pairKey("Beef Curry Rice"));
+  assert.notEqual(pairKey("Sushi Lunch Tuna"), pairKey("Sushi Lunch California"));
+});
+
+test("report pairs lunch items with all-day versions and flags prices", () => {
+  const usd = (amount) => ({ amount, currency: "USD" });
+  const cat = (id, name, parent) => ({ type: "CATEGORY", id, present_at_all_locations: true, category_data: { name, ...(parent && { parent_category: { id: parent } }) } });
+  const item = (id, name, cats, cents) => ({ type: "ITEM", id, present_at_all_locations: true, item_data: { name, reporting_category: { id: cats[0] }, categories: cats.map((c) => ({ id: c })),
+    variations: [{ type: "ITEM_VARIATION", id: "V" + id, present_at_all_locations: true, item_variation_data: { name: "", pricing_type: "FIXED_PRICING", price_money: usd(cents) } }] } });
+  const objs = [
+    cat("ROOT", "Menu"), cat("DON", "Don Buri"), cat("G_DON", "Don Buri", "ROOT"), cat("G_LDON", "Lunch Don & Udon", "ROOT"), cat("RAMEN", "Ramen"),
+    item("A", "Gyudon", ["DON", "G_LDON"], 1500), item("B", "Gyu Donburi", ["DON", "G_DON"], 1900),
+    item("C", "Tonkotsu Ramen", ["RAMEN", "G_LDON"], 1695), item("D", "Tonkotsu Ramen", ["RAMEN", "G_DON"], 1695),
+  ];
+  const r = buildReport(objs, null, "LOC1", { LUNCH_HOURS: "MON-SUN 11:00-14:30", LUNCH_ONLY_CATEGORIES: "Lunch Don & Udon", HIDE_CATEGORIES: "x" });
+  assert.match(r, /Gyudon \$15\.00 +\[Lunch Don & Udon\]   vs  Gyu Donburi \$19\.00 \[Don Buri\]\n/);
+  assert.match(r, /Tonkotsu Ramen \$16\.95 +\[Lunch Don & Udon\]   vs  Tonkotsu Ramen \$16\.95 \[Ramen\]  ! SAME PRICE/);
 });

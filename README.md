@@ -53,7 +53,7 @@ Every request sends `Square-Version: 2026-11-18`, set as `SQUARE_VERSION` in `li
 | `HIDE_CATEGORIES` | | Comma-separated, case-insensitive. An item is hidden if **any** of its categories is listed. Currently `Beer,Red Wine,White Wine,Sake,Signature Cocktails,Alcoholic Drinks` (the restaurant's alcohol categories) |
 | `HIDE_MODIFIER_LISTS` | | Staff-only modifier lists, e.g. `Rush,Comp` |
 | `HIDE_MODIFIERS` | | Staff-only single modifiers by name, case-insensitive. Currently the POS price keys `$1 Key,$1.5 Key,$2 Key,$3 Key`. Separator rows such as `---------` (items or modifiers with no letter or digit) are always hidden |
-| `CATEGORY_ORDER` | | Display order; `*` = all other categories A–Z. Currently appetizers first, then soups, sushi, kitchen entrées and lunch, with `Side Order,Desserts,Non Alcoholic` last; see `dev.vars.example` |
+| `CATEGORY_ORDER` | | Display order; `*` = all other categories A–Z. Currently the lunch sections first (lunch-only items are grouped under their lunch category), then appetizers, soups, sushi and kitchen entrées, with `Side Order,Desserts,Non Alcoholic` last; see `dev.vars.example` |
 | `PREP_TIME` | | ISO 8601 duration, default `PT20M` |
 | `BUSY_PREP_TIME` | | Longer prep in busy windows, in the restaurant's time zone. Currently `FRI-SAT 17:00-19:00 PT30M`. Separate several rules with `;` |
 | `PICKUP_CUTOFF` | | Minutes before each day's **final** close when the last pickup is offered. Currently `MON-THU:10,FRI-SAT:15,SUN:10`: last pickup 9:20pm Mon–Thu and Sun (close 9:30), 9:45pm Fri–Sat (close 10). Mid-day breaks have no cutoff (lunch ends 2:30) |
