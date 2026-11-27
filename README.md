@@ -122,7 +122,7 @@ npm run test:all
    - Add `SQUARE_ACCESS_TOKEN` as type **Secret**.
    - Add the other variables as plain text.
    - Set them for **Production**, and for **Preview** with sandbox values.
-4. **Settings → Runtime:** set a recent compatibility date.
+4. **Settings → Runtime:** set the compatibility date to `2026-11-23`, the same one `npm run dev` uses.
 5. **Custom domain:** buy the domain through Cloudflare Registrar, in the owner's account, then add it under **Custom domains**. Set `SITE_URL` to that domain and redeploy.
 
 Changing a variable takes effect on the next deploy.
