@@ -156,3 +156,25 @@ test("catalog text is escaped", async ({ page }) => {
   await expect(page.getByRole("heading", { name: '<img src=x onerror="window.pwned=1">' })).toBeVisible();
   expect(await page.evaluate(() => window.pwned)).toBeUndefined();
 });
+
+test("category nav: click highlights and jumps, scrolling moves the highlight", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 760 });
+  await page.goto("/");
+  const pill = (name) => page.locator("nav a", { hasText: name });
+  await expect(pill("Appetizers")).toHaveClass(/\bon\b/);
+
+  for (const name of ["Drinks", "Desserts", "Maki", "Appetizers"]) { // short last sections too
+    await pill(name).click();
+    await expect(pill(name)).toHaveClass(/\bon\b/);
+    await expect(page.locator("nav a.on")).toHaveCount(1);
+    await expect(pill(name)).toHaveAttribute("aria-current", "true");
+    await expect(page.getByRole("heading", { level: 2, name, exact: true })).toBeInViewport();
+    await page.waitForTimeout(1100); // let the click lock expire
+    await expect(pill(name)).toHaveClass(/\bon\b/); // still on after the scroll settles
+  }
+
+  await page.mouse.wheel(0, 100000); // to the bottom by hand
+  await expect(pill("Drinks")).toHaveClass(/\bon\b/);
+  await page.evaluate(() => scrollTo(0, 0));
+  await expect(pill("Appetizers")).toHaveClass(/\bon\b/);
+});

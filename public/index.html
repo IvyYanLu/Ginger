@@ -303,12 +303,12 @@ const qtyOfSimple = (it) => cart.get(keyOf(it.variations[0].id, []))?.qty ?? 0;
 
 function renderMenu() {
   const cats = data.categories;
-  $("#nav").innerHTML = cats.map((c, i) => `<a href="#c${i}" class="${i ? "" : "on"}">${esc(c.name)}</a>`).join("");
+  $("#nav").innerHTML = cats.map((c, i) => `<a href="#c${i}" class="${i ? "" : "on"}" ${i ? "" : 'aria-current="true"'}>${esc(c.name)}</a>`).join("");
   $("#menu").innerHTML = cats.length ? cats.map((c, i) => `
     <section id="c${i}" aria-labelledby="h${i}"><h2 id="h${i}">${esc(c.name)}</h2>
       <div class="grid">${c.items.map(card).join("")}</div></section>`).join("")
     : `<p class="error">No items are available online right now.</p>`;
-  watchNav();
+  spyCat();
 }
 function card(it) {
   const out = it.variations.every((v) => v.soldOut);
@@ -326,19 +326,54 @@ function card(it) {
       <div class="row"><span class="price">${priceLabel(it)}</span>${action}</div></div>
     ${img ? `<img class="photo" src="${esc(img)}" alt="" loading="lazy" decoding="async">` : ""}</div>`;
 }
-let navObserver;
-function watchNav() {
-  navObserver?.disconnect();
-  if (!("IntersectionObserver" in window)) return;
-  const links = [...document.querySelectorAll("nav a")];
-  navObserver = new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) {
-      links.forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id));
-      document.querySelector("nav a.on")?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-    }
-  }, { rootMargin: "-60px 0px -70% 0px" });
-  document.querySelectorAll("main section").forEach((s) => navObserver.observe(s));
+// Category nav: a click highlights its pill at once and scrolls there; while
+// that scroll runs, scrolling doesn't move the highlight. Otherwise the pill is
+// the last section whose heading has passed under the nav, or the last section
+// once the page is scrolled to the bottom (short sections can't reach the top).
+let navLock = null;
+function setActiveCat(id) {
+  const nav = $("#nav");
+  let on = null;
+  for (const a of nav.querySelectorAll("a")) {
+    const hit = a.getAttribute("href") === "#" + id;
+    a.classList.toggle("on", hit);
+    if (hit) { a.setAttribute("aria-current", "true"); on = a; } else a.removeAttribute("aria-current");
+  }
+  if (on) nav.scrollTo({ left: on.offsetLeft - (nav.clientWidth - on.offsetWidth) / 2, behavior: "smooth" });
 }
+function spyCat() {
+  if (navLock) return;
+  const secs = [...document.querySelectorAll("main section")];
+  if (!secs.length) return;
+  const line = $("nav").getBoundingClientRect().bottom + 8;
+  let cur = secs[0];
+  for (const sec of secs) if (sec.getBoundingClientRect().top <= line) cur = sec;
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) cur = secs.at(-1);
+  setActiveCat(cur.id);
+}
+function unlockNav() { clearTimeout(navLock); navLock = null; }
+function goToCat(id) {
+  const sec = document.getElementById(id);
+  if (!sec) return;
+  setActiveCat(id);
+  clearTimeout(navLock);
+  navLock = setTimeout(unlockNav, 1000); // fallback where scrollend isn't supported
+  addEventListener("scrollend", unlockNav, { once: true });
+  const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  sec.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+}
+let spyQueued = false;
+addEventListener("scroll", () => {
+  if (spyQueued) return;
+  spyQueued = true;
+  requestAnimationFrame(() => { spyQueued = false; spyCat(); });
+}, { passive: true });
+$("#nav").addEventListener("click", (e) => {
+  const a = e.target.closest("a[href^='#']");
+  if (!a) return;
+  e.preventDefault();
+  goToCat(a.getAttribute("href").slice(1));
+});
 
 // ---- item sheet
 let cur = null;
