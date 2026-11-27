@@ -134,3 +134,37 @@ test("502 with phone number when Square rejects the payment link", async (t) => 
   assert.equal(res.status, 502);
   assert.match((await res.json()).error, /call us at \+17815550100/);
 });
+
+// Lunch-only: the fixture has no menu groups, so every item in a lunch category is lunch-only.
+const LUNCH_ENV = { ...FULL_ENV, LUNCH_HOURS: "MON-SUN 11:00-14:30", LUNCH_ONLY_CATEGORIES: "Entrées" };
+const postLunch = (body) => onRequestPost({
+  env: LUNCH_ENV,
+  request: new Request("https://order.example/api/checkout", { method: "POST", body: JSON.stringify(body) }),
+});
+const lunchOrder = (pickupAt = null) => ({ items: [{ id: "V_TERI", modifiers: [], qty: 1 }, { id: "V_EDA", modifiers: [], qty: 1 }], name: "Alex", pickupAt });
+
+test("lunch-only item: ASAP at dinner is refused", async (t) => {
+  const calls = setup(t);
+  const res = await postLunch(lunchOrder());
+  assert.equal(res.status, 409);
+  assert.deepEqual(await res.json(), {
+    error: "Chicken Teriyaki is lunch only (pickup daily 11am–2:30pm). Please choose a lunch pickup time or remove it.", stale: true,
+  });
+  assert.ok(!calls.some((c) => c.url.endsWith("/payment-links")));
+});
+test("lunch-only item: a dinner slot is refused, a lunch slot goes through", async (t) => {
+  const calls = setup(t);
+  assert.equal((await postLunch(lunchOrder("2026-11-28T22:00:00.000Z"))).status, 409); // Sat 5pm
+  const res = await postLunch(lunchOrder("2026-11-28T16:00:00.000Z"));              // Sat 11am
+  assert.equal(res.status, 200);
+  const sent = JSON.parse(calls.find((c) => c.url.endsWith("/payment-links")).init.body);
+  assert.equal(sent.order.fulfillments[0].pickup_details.pickup_at, "2026-11-28T16:00:00.000Z");
+});
+test("lunch-only item: ASAP during lunch goes through", async (t) => {
+  setup(t, { now: Date.parse("2026-11-27T17:00:00Z") }); // Fri 12pm
+  assert.equal((await postLunch(lunchOrder())).status, 200);
+});
+test("no lunch items: dinner ASAP is unaffected by LUNCH_HOURS", async (t) => {
+  setup(t);
+  assert.equal((await postLunch({ items: [{ id: "V_EDA", modifiers: [], qty: 1 }], name: "Alex" })).status, 200);
+});

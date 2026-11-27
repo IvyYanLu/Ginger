@@ -4,10 +4,11 @@ import { pickupOptions, pickupSettings } from "../../lib/pickup.js";
 import { objects, location, env } from "../fixtures/catalog.js";
 
 // Menu as /api/menu would return it; open all day so ASAP is available whenever the test runs.
-function menuJson({ requiredRice = true } = {}) {
+function menuJson({ requiredRice = true, lunch = false } = {}) {
+  const e = lunch ? { ...env, LUNCH_HOURS: "MON-SUN 11:00-14:30", LUNCH_ONLY_CATEGORIES: "Entrées" } : env;
   const warn = console.warn;
   console.warn = () => {}; // the fixture's excluded items are expected
-  const { menu } = normalizeMenu(objects, location, env);
+  const { menu } = normalizeMenu(objects, location, e);
   console.warn = warn;
   const m = structuredClone(menu);
   if (requiredRice) for (const c of m.categories) for (const it of c.items) for (const l of it.modifierLists) {
@@ -15,7 +16,7 @@ function menuJson({ requiredRice = true } = {}) {
   }
   const allDay = { timezone: "America/New_York", business_hours: { periods: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
     .map((d) => ({ day_of_week: d, start_local_time: "00:00", end_local_time: "23:59" })) } };
-  return { ...m, restaurant: { ...m.restaurant, today: "FRI" }, pickup: pickupOptions(allDay, pickupSettings(env)) };
+  return { ...m, restaurant: { ...m.restaurant, today: "FRI" }, pickup: pickupOptions(allDay, pickupSettings(e)) };
 }
 
 test.beforeEach(async ({ page }) => {
@@ -177,4 +178,30 @@ test("category nav: click highlights and jumps, scrolling moves the highlight", 
   await expect(pill("Drinks")).toHaveClass(/\bon\b/);
   await page.evaluate(() => scrollTo(0, 0));
   await expect(pill("Appetizers")).toHaveClass(/\bon\b/);
+});
+
+test("lunch-only items: tagged, and the cart offers only lunch pickup times", async ({ page }) => {
+  const json = menuJson({ lunch: true });
+  await page.route("**/api/menu", (r) => r.fulfill({ json }));
+  await page.goto("/");
+  await expect(card(page, "Chicken Teriyaki").locator(".lunch")).toHaveText("Lunch only · daily 11am–2:30pm");
+  await expect(card(page, "Edamame").locator(".lunch")).toHaveCount(0);
+
+  await card(page, "Edamame").getByRole("button", { name: "Add Edamame" }).click();
+  await page.getByRole("button", { name: /View order/ }).click();
+  await expect(page.locator("#lunchNote")).toBeHidden();
+  await page.getByRole("button", { name: "Schedule" }).click();
+  await expect(page.locator("#slot option")).toHaveCount(json.pickup.slots.length);
+  await page.locator("#cartSheet [data-close]").click();
+
+  await card(page, "Chicken Teriyaki").getByRole("button", { name: /Choose options/ }).click();
+  await page.locator("#sheetAdd").click();
+  await page.getByRole("button", { name: /View order/ }).click();
+  await expect(page.locator("#lunchNote")).toHaveText("Your order has lunch-only items, so pickup is daily 11am–2:30pm.");
+  const lunchSlots = json.pickup.slots.filter((s) => s.lunch);
+  // ASAP only if it lands in lunch (depends on the real clock in this test).
+  if (json.pickup.asap.lunch) await expect(page.locator("#tAsap")).toBeEnabled();
+  else await expect(page.locator("#tAsap")).toBeDisabled();
+  await expect(page.locator("#slot option")).toHaveCount(lunchSlots.length);
+  expect(await page.locator("#slot option").evaluateAll((os) => os.map((o) => o.value))).toEqual(lunchSlots.map((s) => s.at));
 });

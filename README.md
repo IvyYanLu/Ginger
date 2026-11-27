@@ -57,6 +57,8 @@ Every request sends `Square-Version: 2026-11-18`, set as `SQUARE_VERSION` in `li
 | `PREP_TIME` | | ISO 8601 duration, default `PT20M` |
 | `BUSY_PREP_TIME` | | Longer prep in busy windows, in the restaurant's time zone. Currently `FRI-SAT 17:00-19:00 PT30M`. Separate several rules with `;` |
 | `PICKUP_CUTOFF` | | Minutes before each day's **final** close when the last pickup is offered. Currently `MON-THU:10,FRI-SAT:15,SUN:10`: last pickup 9:20pm Mon–Thu and Sun (close 9:30), 9:45pm Fri–Sat (close 10). Mid-day breaks have no cutoff (lunch ends 2:30) |
+| `LUNCH_HOURS` | | When lunch-only items can be picked up, in the restaurant's time zone. Currently `MON-SUN 11:00-14:30` (Sunday opens at 12, so 12–2:30). The end time is included |
+| `LUNCH_ONLY_CATEGORIES` | | Lunch categories. An item is lunch-only if it's in one of them **and in no other POS menu group** (a category with a parent). So Gyudon (only in "Lunch Don & Udon") is lunch-only, but Yaki Soba (also in "Udon, Soba & Ramen") sells all day. Currently `Lunch Boxes,Lunch Box Combo,Lunch Sushi Bar Specials,Lunch Don & Udon`. The discovery report lists the lunch-only items |
 | `SCHEDULE_DAYS` | | Today plus the next N−1 days. Default `3` |
 
 ### Pickup rules
@@ -69,6 +71,7 @@ These are implemented in `lib/pickup.js`, and every rule has a test in `test/pic
   - They end at the last pickup time.
   - None is ever earlier than now + prep time.
 - **Prep time** comes from the time the order is placed, for ASAP orders. A scheduled order gets the prep time of its pickup time, sent as `prep_time_duration`.
+- **Lunch-only items** show a "Lunch only" tag. With one in the cart, only pickup times inside `LUNCH_HOURS` are offered (ASAP only if it lands in lunch), and the server returns 409 for any other time.
 - **Re-checked at checkout:** the server rebuilds the slot list, and a time that's no longer offered returns 409.
 
 ## Local development

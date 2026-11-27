@@ -3,7 +3,7 @@
 // Usage: node scripts/dump-catalog.mjs   (reads env vars, falling back to .dev.vars)
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { listCatalog, getLocation, isPresentAt, childLists, isSeparator } from "../lib/square.js";
+import { listCatalog, getLocation, isPresentAt, childLists, isSeparator, normalizeMenu } from "../lib/square.js";
 
 // Minimal KEY=value parser for .dev.vars (quotes optional, # comments).
 export function parseDevVars(text) {
@@ -33,7 +33,7 @@ const flag = (cond, label) => (cond ? ` [${label}]` : "");
 
 const fmtTime = (t) => (t ?? "").slice(0, 5);
 
-export function buildReport(objects, location, locationId) {
+export function buildReport(objects, location, locationId, env = {}) {
   const L = [];
   const warn = [];
   const byType = (t) => objects.filter((o) => o.type === t);
@@ -134,6 +134,19 @@ export function buildReport(objects, location, locationId) {
     if (!visible) L.push("    (no modifiers visible online)");
   }
 
+  // --- What the site will show, with the current settings
+  if (env.HIDE_CATEGORIES || env.LUNCH_ONLY_CATEGORIES) {
+    const warnFn = console.warn;
+    console.warn = () => {}; // exclusions are already listed as warnings
+    const { menu } = normalizeMenu(objects, location ?? {}, { ...env, SQUARE_LOCATION_ID: locationId });
+    console.warn = warnFn;
+    const shown = menu.categories.flatMap((c) => c.items.map((it) => ({ ...it, cat: c.name })));
+    L.push("", `=== ONLINE MENU (${shown.length} items in ${menu.categories.length} sections) ===`);
+    for (const c of menu.categories) L.push(`  ${c.name.padEnd(32)} ${String(c.items.length).padStart(3)} items`);
+    const lunch = shown.filter((it) => it.lunchOnly);
+    L.push("", `=== LUNCH ONLY (${lunch.length}) ===`, ...lunch.map((it) => `  ${it.name}  (${it.cat})`));
+  }
+
   L.push("", `=== WARNINGS (${warn.length}) ===`, ...(warn.length ? [...new Set(warn)].map((w) => "  ! " + w) : ["  none"]));
   return L.join("\n");
 }
@@ -144,7 +157,7 @@ async function main() {
   console.log(`Square ${which} · location ${env.SQUARE_LOCATION_ID}`);
   const [objects, location] = await Promise.all([listCatalog(env), getLocation(env)]);
   console.log(`${objects.length} catalog objects\n`);
-  console.log(buildReport(objects, location, env.SQUARE_LOCATION_ID));
+  console.log(buildReport(objects, location, env.SQUARE_LOCATION_ID, env));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

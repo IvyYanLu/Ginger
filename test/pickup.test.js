@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { parseDuration, parseCutoff, parseBusy, pickupOptions, pickupSettings, prepAt, localToUtc, wallClock } from "../lib/pickup.js";
+import { parseDuration, parseCutoff, parseBusy, parseWindows, inWindows, windowsLabel, pickupOptions, pickupSettings, prepAt, localToUtc, wallClock } from "../lib/pickup.js";
 import { location, env } from "./fixtures/catalog.js";
 
 const settings = pickupSettings({ ...env, BUSY_PREP_TIME: "FRI-SAT 17:00-19:00 PT30M", PICKUP_CUTOFF: "MON-THU:10,FRI-SAT:15,SUN:10", SCHEDULE_DAYS: "3" });
@@ -97,5 +97,39 @@ describe("pickupOptions (Fri 2026-11-27, America/New_York)", () => {
   });
   test("no business hours: nothing available", () => {
     assert.deepEqual(pickupOptions({ timezone: "America/New_York" }, settings, at("2026-11-27T17:00:00Z")), { asap: { available: false, minutes: 20 }, slots: [] });
+  });
+});
+
+describe("lunch windows", () => {
+  const tz = "America/New_York";
+  test("parseWindows, label, inclusive end", () => {
+    const w = parseWindows("MON-SUN 11:00-14:30");
+    assert.deepEqual(w, [{ days: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], from: 660, to: 870 }]);
+    assert.equal(windowsLabel(w), "daily 11am–2:30pm");
+    assert.equal(windowsLabel(parseWindows("MON-FRI 11:00-14:30; SAT 12:00-15:00")), "Mon–Fri 11am–2:30pm, Sat 12pm–3pm");
+    assert.deepEqual(parseWindows(""), []);
+    assert.deepEqual(parseWindows("XYZ 11:00-14:30"), []);
+    assert.equal(inWindows(at("2026-11-27T19:30:00Z"), tz, w), true);  // 2:30pm
+    assert.equal(inWindows(at("2026-11-27T19:31:00Z"), tz, w), false); // 2:31pm
+    assert.equal(inWindows(at("2026-11-27T15:59:00Z"), tz, w), false); // 10:59am
+  });
+  const lunchSettings = pickupSettings({ ...env, BUSY_PREP_TIME: "FRI-SAT 17:00-19:00 PT30M", PICKUP_CUTOFF: "MON-THU:10,FRI-SAT:15,SUN:10", LUNCH_HOURS: "MON-SUN 11:00-14:30" });
+  test("slots and ASAP are flagged; Sunday lunch starts at opening (12pm)", () => {
+    const o = pickupOptions(location, lunchSettings, at("2026-11-27T17:00:00Z")); // Fri 12:00pm
+    assert.equal(o.lunchLabel, "daily 11am–2:30pm");
+    assert.deepEqual(o.asap, { available: true, minutes: 20, lunch: true }); // 12:20pm
+    const by = Object.fromEntries(o.slots.map((s) => [s.label, s.lunch]));
+    assert.equal(by["Today 2:30pm"], true);
+    assert.equal(by["Today 4pm"], false);
+    assert.equal(by["Tomorrow 11am"], true);
+    assert.equal(by["Tomorrow 2:45pm"], false);
+    assert.equal(by["Sun 12pm"], true);
+    assert.equal(o.slots.filter((s) => s.lunch && s.label.startsWith("Sun"))[0].label, "Sun 12pm");
+  });
+  test("dinner ASAP is not lunch", () => {
+    assert.equal(pickupOptions(location, lunchSettings, at("2026-11-27T22:30:00Z")).asap.lunch, false);
+  });
+  test("ASAP at 2:10pm lands at 2:30pm: still lunch", () => {
+    assert.deepEqual(pickupOptions(location, lunchSettings, at("2026-11-27T19:10:00Z")).asap, { available: true, minutes: 20, lunch: true });
   });
 });

@@ -87,16 +87,25 @@ export async function onRequestPost({ request, env }) {
   const settings = pickupSettings(env);
   const opts = pickupOptions(location, settings, now);
   const tz = location?.timezone || "America/New_York";
+  // Lunch-only items need a pickup time inside the lunch window.
+  const lunchItems = [...new Set(parsed.lines.map((l) => menu[l.id]).filter((it) => it.lunchOnly).map((it) => it.name))];
+  const lunchError = () => json({
+    error: `${lunchItems.join(", ")} ${lunchItems.length > 1 ? "are" : "is"} lunch only (pickup ${opts.lunchLabel}). Please choose a lunch pickup time or remove ${lunchItems.length > 1 ? "them" : "it"}.`,
+    stale: true,
+  }, 409);
   let pickup;
   if (parsed.pickupAt) {
-    if (!opts.slots.some((s) => s.at === parsed.pickupAt)) {
+    const slot = opts.slots.find((s) => s.at === parsed.pickupAt);
+    if (!slot) {
       return json({ error: "That pickup time is no longer available. Please choose another.", stale: true }, 409);
     }
+    if (lunchItems.length && !slot.lunch) return lunchError();
     pickup = { at: parsed.pickupAt, prepMinutes: prepAt(Date.parse(parsed.pickupAt), tz, settings.base, settings.busy) };
   } else {
     if (!opts.asap.available) {
       return json({ error: "We can't take ASAP orders right now. Please choose a pickup time.", stale: true }, 409);
     }
+    if (lunchItems.length && !opts.asap.lunch) return lunchError();
     pickup = { at: null, prepMinutes: opts.asap.minutes };
   }
 

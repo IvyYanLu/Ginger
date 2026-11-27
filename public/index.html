@@ -74,6 +74,8 @@ section h2 { font-size: 22px; margin-bottom: 12px; }
 .price { font-weight: 600; white-space: nowrap; }
 .photo { flex: none; width: 92px; height: 92px; border-radius: 10px; object-fit: cover; background: var(--ginger-soft); }
 .soldout { opacity: .55; }
+.lunch { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--ginger-deep); background: var(--ginger-soft); border-radius: 99px; padding: 2px 8px; }
+.pnote { margin: 8px 0 0; font-size: 13px; color: var(--ginger-deep); }
 .tag { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .add { border: 0; background: var(--ink); color: var(--cream); border-radius: 99px; padding: 7px 16px; font-weight: 600; font-size: 14px; }
 .add.ghost { background: var(--ginger-soft); color: var(--ginger-deep); }
@@ -171,6 +173,7 @@ footer strong { color: var(--ink); }
         <button type="button" id="tLater" aria-pressed="false">Schedule</button>
       </div>
       <select id="slot" hidden aria-label="Pickup time"></select>
+      <p class="pnote" id="lunchNote" hidden></p>
     </div>
     <label class="field">Name for pickup <input id="pname" autocomplete="name" maxlength="60" placeholder="Required" required></label>
     <label class="field">Allergies or requests <textarea id="pnote" rows="2" maxlength="500" placeholder="Optional"></textarea></label>
@@ -322,7 +325,7 @@ function card(it) {
   } else action = `<button class="add ghost" data-open="${esc(it.id)}" aria-label="Choose options for ${esc(it.name)}">Choose</button>`;
   const img = safeUrl(it.image);
   return `<div class="card ${out ? "soldout" : ""} ${!out && !isSimple(it) ? "tap" : ""}" ${!out && !isSimple(it) ? `data-open="${esc(it.id)}"` : ""}>
-    <div class="body"><h3>${esc(it.name)}</h3>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
+    <div class="body"><h3>${esc(it.name)}</h3>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}${it.lunchOnly ? `<span class="lunch">${esc(lunchTag())}</span>` : ""}
       <div class="row"><span class="price">${priceLabel(it)}</span>${action}</div></div>
     ${img ? `<img class="photo" src="${esc(img)}" alt="" loading="lazy" decoding="async">` : ""}</div>`;
 }
@@ -330,6 +333,7 @@ function card(it) {
 // that scroll runs, scrolling doesn't move the highlight. Otherwise the pill is
 // the last section whose heading has passed under the nav, or the last section
 // once the page is scrolled to the bottom (short sections can't reach the top).
+const lunchTag = () => `Lunch only${data.pickup?.lunchLabel ? " · " + data.pickup.lunchLabel : ""}`;
 let navLock = null;
 function setActiveCat(id) {
   const nav = $("#nav");
@@ -481,25 +485,38 @@ function renderCart() {
       <div class="step"><button data-bump="${esc(k)}" data-d="-1" aria-label="Remove one ${esc(it.name)}">−</button><span>${l.qty}</span><button data-bump="${esc(k)}" data-d="1" aria-label="Add one more ${esc(it.name)}" ${l.qty >= 20 ? "disabled" : ""}>+</button></div></div></div>`;
   }).join("");
 }
-function render() { renderMenu(); renderCart(); }
+function render() { renderMenu(); renderCart(); if (data?.pickup) renderPickup(); }
 
 // ---- pickup time
+// Lunch-only items in the cart limit pickup to lunch times (server re-checks).
+let pickupMsg = false;
+const cartHasLunch = () => [...cart.values()].some((l) => byVar.get(l.id)?.lunchOnly);
 function renderPickup() {
   const p = data.pickup;
-  if (!p.asap.available && pickupMode === "asap") pickupMode = "later";
-  $("#tAsap").disabled = !p.asap.available;
-  $("#tAsap").textContent = p.asap.available ? `ASAP (~${p.asap.minutes} min)` : "ASAP (closed)";
-  $("#tLater").disabled = !p.slots.length;
+  const lunch = cartHasLunch();
+  const asapOk = p.asap.available && (!lunch || p.asap.lunch);
+  const slots = lunch ? p.slots.filter((s) => s.lunch) : p.slots;
+  if (!asapOk && pickupMode === "asap") pickupMode = "later";
+  $("#tAsap").disabled = !asapOk;
+  $("#tAsap").textContent = asapOk ? `ASAP (~${p.asap.minutes} min)` : p.asap.available ? "ASAP (not lunch)" : "ASAP (closed)";
+  $("#tLater").disabled = !slots.length;
   $("#tAsap").setAttribute("aria-pressed", pickupMode === "asap");
   $("#tLater").setAttribute("aria-pressed", pickupMode === "later");
   const sel = $("#slot");
   const prev = sel.value;
-  sel.innerHTML = p.slots.map((s) => `<option value="${esc(s.at)}">${esc(s.label)}</option>`).join("");
-  if (p.slots.some((s) => s.at === prev)) sel.value = prev;
+  sel.innerHTML = slots.map((s) => `<option value="${esc(s.at)}">${esc(s.label)}</option>`).join("");
+  if (slots.some((s) => s.at === prev)) sel.value = prev;
   sel.hidden = pickupMode !== "later";
-  const none = !p.asap.available && !p.slots.length;
+  const note = $("#lunchNote");
+  note.hidden = !lunch;
+  note.textContent = lunch ? `Your order has lunch-only items, so pickup is ${p.lunchLabel ?? "at lunch"}.` : "";
+  const none = !asapOk && !slots.length;
   $("#checkout").disabled = none;
-  if (none) showMsg(`Online ordering is closed right now.${data.restaurant.phone ? " Please call us at " + fmtPhone(data.restaurant.phone) + "." : ""}`);
+  if (!none && pickupMsg) { showMsg(""); pickupMsg = false; } // clear our own message only
+  if (none) pickupMsg = true;
+  if (none) showMsg(lunch
+    ? `No lunch pickup times are open in the next few days. Remove the lunch items, or call us${data.restaurant.phone ? " at " + fmtPhone(data.restaurant.phone) : ""}.`
+    : `Online ordering is closed right now.${data.restaurant.phone ? " Please call us at " + fmtPhone(data.restaurant.phone) + "." : ""}`);
 }
 $("#tAsap").onclick = () => { pickupMode = "asap"; renderPickup(); };
 $("#tLater").onclick = () => { pickupMode = "later"; renderPickup(); };

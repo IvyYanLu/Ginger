@@ -208,3 +208,33 @@ describe("POS-only rows", () => {
     assert.deepEqual(l.modifiers.map((m) => m.name), ["Avocado"]);
   });
 });
+
+describe("lunch-only items", () => {
+  const usd = (amount) => ({ amount, currency: "USD" });
+  const cat = (id, name, parent) => ({ type: "CATEGORY", id, category_data: { name, ...(parent && { parent_category: { id: parent } }) } });
+  const item = (id, name, cats) => ({ type: "ITEM", id, item_data: { name, reporting_category: { id: cats[0] }, categories: cats.map((c) => ({ id: c })),
+    variations: [{ type: "ITEM_VARIATION", id: "V" + id, item_variation_data: { name: "", pricing_type: "FIXED_PRICING", price_money: usd(1500) } }] } });
+  const objs = [
+    cat("ROOT", "Ginger Japanese Menu"),
+    cat("DON", "Don Buri"),                         // reporting category, no parent
+    cat("G_DON", "Don Buri", "ROOT"),               // POS menu group
+    cat("G_LDON", "Lunch Don & Udon", "ROOT"),
+    cat("G_NOODLE", "Udon, Soba & Ramen", "ROOT"),
+    cat("NOODLE", "Udon / Soba / Ramen"),
+    cat("BOX", "Lunch Boxes"),
+    cat("KITCHEN", "General Kitchen Foods"),        // printer routing, no parent
+    item("GYUDON", "Gyudon", ["DON", "G_LDON", "KITCHEN"]),
+    item("GYUDONBURI", "Gyu Donburi", ["DON", "G_DON", "KITCHEN"]),
+    item("YAKISOBA", "Yaki Soba", ["NOODLE", "G_NOODLE", "G_LDON", "KITCHEN"]),
+    item("BENTO", "Chicken Katsu Lunch Box", ["BOX", "KITCHEN"]),
+  ];
+  const lunchEnv = { LUNCH_HOURS: "MON-SUN 11:00-14:30", LUNCH_ONLY_CATEGORIES: "Lunch Boxes, lunch don & udon" };
+  const flags = (e) => Object.fromEntries(normalizeMenu(objs, {}, e).menu.categories.flatMap((c) => c.items).map((i) => [i.name, !!i.lunchOnly]));
+
+  test("lunch-only = in a lunch category and in no other menu group", () => {
+    assert.deepEqual(flags(lunchEnv), { Gyudon: true, "Gyu Donburi": false, "Yaki Soba": false, "Chicken Katsu Lunch Box": true });
+  });
+  test("needs LUNCH_HOURS too, or nothing is lunch-only", () => {
+    assert.deepEqual(flags({ LUNCH_ONLY_CATEGORIES: lunchEnv.LUNCH_ONLY_CATEGORIES }), { Gyudon: false, "Gyu Donburi": false, "Yaki Soba": false, "Chicken Katsu Lunch Box": false });
+  });
+});
