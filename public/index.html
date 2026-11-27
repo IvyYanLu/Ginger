@@ -62,6 +62,16 @@ nav a.on { background: var(--ink); color: var(--cream); }
 main { padding-bottom: 40px; min-height: 40vh; }
 section { padding-top: 26px; scroll-margin-top: 58px; }
 section h2 { font-size: 22px; margin-bottom: 12px; }
+/* Lunch / Dinner groups */
+.meal { margin-top: 18px; scroll-margin-top: 58px; }
+.meal > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); background: var(--ink); color: var(--cream); }
+.meal > summary::-webkit-details-marker { display: none; }
+.meal > summary h2 { font-size: 22px; margin: 0; color: inherit; }
+.meal > summary .when { font-size: 14px; opacity: .85; }
+.meal > summary::after { content: ""; margin-left: auto; width: 9px; height: 9px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform .2s; }
+.meal[open] > summary::after { transform: rotate(-135deg); }
+.meal > summary:focus-visible { outline: 3px solid var(--ginger); outline-offset: 2px; }
+.meal section h2 { font-size: 19px; }
 .grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
 @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 960px) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
@@ -74,7 +84,6 @@ section h2 { font-size: 22px; margin-bottom: 12px; }
 .price { font-weight: 600; white-space: nowrap; }
 .photo { flex: none; width: 92px; height: 92px; border-radius: 10px; object-fit: cover; background: var(--ginger-soft); }
 .soldout { opacity: .55; }
-.lunch { display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--ginger-deep); background: var(--ginger-soft); border-radius: 99px; padding: 2px 8px; }
 .pnote { margin: 8px 0 0; font-size: 13px; color: var(--ginger-deep); }
 .tag { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
 .add { border: 0; background: var(--ink); color: var(--cream); border-radius: 99px; padding: 7px 16px; font-weight: 600; font-size: 14px; }
@@ -304,15 +313,46 @@ function renderHours(r) {
 const isSimple = (it) => it.variations.length === 1 && !it.modifierLists.length;
 const qtyOfSimple = (it) => cart.get(keyOf(it.variations[0].id, []))?.qty ?? 0;
 
+// With lunch sections, the menu is two collapsible groups: Lunch (its hours in
+// the header) and Dinner (everything else). Lunch starts open during lunch
+// hours, Dinner otherwise; the customer's toggles are kept across re-renders.
+let mealOpen = null; // { lunch, dinner }
 function renderMenu() {
-  const cats = data.categories;
-  $("#nav").innerHTML = cats.map((c, i) => `<a href="#c${i}" class="${i ? "" : "on"}" ${i ? "" : 'aria-current="true"'}>${esc(c.name)}</a>`).join("");
-  $("#menu").innerHTML = cats.length ? cats.map((c, i) => `
-    <section id="c${i}" aria-labelledby="h${i}"><h2 id="h${i}">${esc(c.name)}</h2>
-      <div class="grid">${c.items.map(card).join("")}</div></section>`).join("")
-    : `<p class="error">No items are available online right now.</p>`;
+  const cats = data.categories.map((c, i) => ({ ...c, id: "c" + i }));
+  const section = (c) => `
+    <section id="${c.id}" aria-labelledby="h${c.id}"><h2 id="h${c.id}">${esc(c.name)}</h2>
+      <div class="grid">${c.items.map(card).join("")}</div></section>`;
+  const lunch = cats.filter((c) => c.lunch), dinner = cats.filter((c) => !c.lunch);
+  let pills;
+  if (!cats.length) {
+    pills = [];
+    $("#menu").innerHTML = `<p class="error">No items are available online right now.</p>`;
+  } else if (!lunch.length) {
+    pills = cats.map((c) => [c.id, c.name]);
+    $("#menu").innerHTML = cats.map(section).join("");
+  } else {
+    if (!mealOpen) {
+      const now = !!(data.pickup?.asap?.available && data.pickup.asap.lunch);
+      mealOpen = { lunch: now, dinner: !now };
+    }
+    const group = (key, title, when, list) => `
+      <details class="meal" id="g-${key}" data-meal="${key}" ${mealOpen[key] ? "open" : ""}>
+        <summary><h2>${title}</h2>${when ? `<span class="when">${esc(when)}</span>` : ""}</summary>
+        ${list.map(section).join("")}
+      </details>`;
+    pills = [["g-lunch", "Lunch"], ...dinner.map((c) => [c.id, c.name])];
+    $("#menu").innerHTML = group("lunch", "Lunch", data.pickup?.lunchLabel ? cap1(data.pickup.lunchLabel) : "", lunch)
+      + (dinner.length ? group("dinner", "Dinner", "", dinner) : "");
+  }
+  $("#nav").innerHTML = pills.map(([id, name], i) => `<a href="#${id}" class="${i ? "" : "on"}" ${i ? "" : 'aria-current="true"'}>${esc(name)}</a>`).join("");
   spyCat();
 }
+const cap1 = (s) => s[0].toUpperCase() + s.slice(1);
+// <details> "toggle" doesn't bubble: listen in the capture phase.
+$("#menu").addEventListener("toggle", (e) => {
+  const key = e.target.dataset?.meal;
+  if (key && mealOpen) { mealOpen[key] = e.target.open; spyCat(); }
+}, true);
 function card(it) {
   const out = it.variations.every((v) => v.soldOut);
   let action;
@@ -325,7 +365,7 @@ function card(it) {
   } else action = `<button class="add ghost" data-open="${esc(it.id)}" aria-label="Choose options for ${esc(it.name)}">Choose</button>`;
   const img = safeUrl(it.image);
   return `<div class="card ${out ? "soldout" : ""} ${!out && !isSimple(it) ? "tap" : ""}" ${!out && !isSimple(it) ? `data-open="${esc(it.id)}"` : ""}>
-    <div class="body"><h3>${esc(it.name)}</h3>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}${it.lunchOnly ? `<span class="lunch">${esc(lunchTag())}</span>` : ""}
+    <div class="body"><h3>${esc(it.name)}</h3>${it.desc ? `<p>${esc(it.desc)}</p>` : ""}
       <div class="row"><span class="price">${priceLabel(it)}</span>${action}</div></div>
     ${img ? `<img class="photo" src="${esc(img)}" alt="" loading="lazy" decoding="async">` : ""}</div>`;
 }
@@ -333,7 +373,6 @@ function card(it) {
 // that scroll runs, scrolling doesn't move the highlight. Otherwise the pill is
 // the last section whose heading has passed under the nav, or the last section
 // once the page is scrolled to the bottom (short sections can't reach the top).
-const lunchTag = () => `Lunch only${data.pickup?.lunchLabel ? " · " + data.pickup.lunchLabel : ""}`;
 let navLock = null;
 function setActiveCat(id) {
   const nav = $("#nav");
@@ -347,7 +386,9 @@ function setActiveCat(id) {
 }
 function spyCat() {
   if (navLock) return;
-  const secs = [...document.querySelectorAll("main section")];
+  const secs = [...document.querySelectorAll("#nav a")]
+    .map((a) => document.getElementById(a.getAttribute("href").slice(1)))
+    .filter((el) => el && el.getClientRects().length);
   if (!secs.length) return;
   const line = $("nav").getBoundingClientRect().bottom + 8;
   let cur = secs[0];
@@ -359,6 +400,8 @@ function unlockNav() { clearTimeout(navLock); navLock = null; }
 function goToCat(id) {
   const sec = document.getElementById(id);
   if (!sec) return;
+  const meal = sec.closest("details.meal");
+  if (meal && !meal.open) { meal.open = true; mealOpen[meal.dataset.meal] = true; }
   setActiveCat(id);
   clearTimeout(navLock);
   navLock = setTimeout(unlockNav, 1000); // fallback where scrollend isn't supported

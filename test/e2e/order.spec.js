@@ -180,12 +180,46 @@ test("category nav: click highlights and jumps, scrolling moves the highlight", 
   await expect(pill("Appetizers")).toHaveClass(/\bon\b/);
 });
 
-test("lunch-only items: tagged, and the cart offers only lunch pickup times", async ({ page }) => {
+test("lunch and dinner groups: collapsible, nav opens them, state survives re-render", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 760 });
   const json = menuJson({ lunch: true });
   await page.route("**/api/menu", (r) => r.fulfill({ json }));
   await page.goto("/");
-  await expect(card(page, "Chicken Teriyaki").locator(".lunch")).toHaveText("Lunch only · daily 11am–2:30pm");
-  await expect(card(page, "Edamame").locator(".lunch")).toHaveCount(0);
+  const lunch = page.locator("#g-lunch"), dinner = page.locator("#g-dinner");
+  await expect(lunch.locator("summary")).toHaveText("LunchDaily 11am–2:30pm");
+  await expect(dinner.locator("summary")).toHaveText("Dinner");
+  await expect(page.locator("nav a")).toHaveText(["Lunch", "Appetizers", "Maki", "Other", "Desserts", "Drinks"]);
+  await expect(page.getByText("Lunch only")).toHaveCount(0); // no per-item tags
+  // Starts open for the current meal (depends on the real clock here).
+  const lunchNow = json.pickup.asap.available && json.pickup.asap.lunch;
+  expect(await lunch.evaluate((d) => d.open)).toBe(lunchNow);
+  expect(await dinner.evaluate((d) => d.open)).toBe(!lunchNow);
+
+  // A pill inside a closed group opens it and scrolls there.
+  if (!lunchNow) await lunch.locator("summary").click(); // open Lunch, then close Dinner
+  if (await dinner.evaluate((d) => d.open)) await dinner.locator("summary").click();
+  await expect(card(page, "Edamame")).toBeHidden();
+  await page.locator("nav a", { hasText: "Maki" }).click();
+  expect(await dinner.evaluate((d) => d.open)).toBe(true);
+  await expect(page.getByRole("heading", { level: 2, name: "Maki", exact: true })).toBeInViewport();
+  await expect(page.locator("nav a", { hasText: "Maki" })).toHaveClass(/\bon\b/);
+
+  // Collapse Lunch; adding to the cart re-renders the menu and keeps it collapsed.
+  await page.locator("nav a", { hasText: "Lunch" }).click();
+  await lunch.locator("summary").click();
+  await expect(card(page, "Chicken Teriyaki")).toBeHidden();
+  await card(page, "Edamame").getByRole("button", { name: "Add Edamame" }).click();
+  await expect(card(page, "Edamame").locator(".step")).toBeVisible();
+  expect(await lunch.evaluate((d) => d.open)).toBe(false);
+});
+
+test("lunch items in the cart limit pickup to lunch times", async ({ page }) => {
+  const json = menuJson({ lunch: true });
+  await page.route("**/api/menu", (r) => r.fulfill({ json }));
+  await page.goto("/");
+  for (const g of ["#g-lunch", "#g-dinner"]) {
+    if (!(await page.locator(g).evaluate((d) => d.open))) await page.locator(`${g} > summary`).click();
+  }
 
   await card(page, "Edamame").getByRole("button", { name: "Add Edamame" }).click();
   await page.getByRole("button", { name: /View order/ }).click();

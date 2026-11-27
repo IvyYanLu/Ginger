@@ -243,6 +243,10 @@ describe("lunch-only items", () => {
       "Udon / Soba / Ramen": ["Yaki Soba"],
     });
   });
+  test("lunch sections are flagged for the Lunch group", () => {
+    const cats = normalizeMenu(objs, {}, lunchEnv).menu.categories;
+    assert.deepEqual(cats.filter((c) => c.lunch).map((c) => c.name).sort(), ["Lunch Boxes", "Lunch Don & Udon"]);
+  });
   test("needs LUNCH_HOURS too, or nothing is lunch-only", () => {
     assert.deepEqual(flags({ LUNCH_ONLY_CATEGORIES: lunchEnv.LUNCH_ONLY_CATEGORIES }), { Gyudon: false, "Gyu Donburi": false, "Yaki Soba": false, "Chicken Katsu Lunch Box": false });
   });
