@@ -32,3 +32,10 @@ test("report shows structure and warnings", () => {
 test("parseDevVars", () => {
   assert.deepEqual(parseDevVars('# c\nA=1\nB="x y"\n  C = \'z\'\nbad line'), { A: "1", B: "x y", C: "z" });
 });
+
+test("top-level categories with an empty parent_category are not flagged", () => {
+  const cat = (id, name, parent) => ({ type: "CATEGORY", id, present_at_all_locations: true, category_data: { name, parent_category: parent } });
+  const r = buildReport([cat("C1", "Maki", { ordinal: 1 }), cat("C2", "Hand Rolls", { id: "C1" })], null, "LOC1");
+  assert.ok(!r.includes("?undefined"), r);
+  assert.ok(r.includes("[parent: Maki]"), r);
+});

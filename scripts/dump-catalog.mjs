@@ -66,7 +66,7 @@ export function buildReport(objects, location, locationId) {
   }
   L.push("", `=== CATEGORIES (${byType("CATEGORY").length}) ===`);
   for (const c of byType("CATEGORY").sort((a, b) => a.category_data.name.localeCompare(b.category_data.name))) {
-    L.push(`  ${c.category_data.name.padEnd(32)} ${String(counts.get(c.id) ?? 0).padStart(3)} items${here(c)}${flag(c.category_data.parent_category, "parent: " + name(c.category_data.parent_category?.id))}`);
+    L.push(`  ${c.category_data.name.padEnd(32)} ${String(counts.get(c.id) ?? 0).padStart(3)} items${here(c)}${flag(c.category_data.parent_category?.id, "parent: " + name(c.category_data.parent_category?.id))}`);
   }
   if (counts.get("(none)")) L.push(`  ${"(no category)".padEnd(32)} ${String(counts.get("(none)")).padStart(3)} items`);
 
