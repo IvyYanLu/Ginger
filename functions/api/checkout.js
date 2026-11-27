@@ -28,7 +28,9 @@ export function parseCheckout(body) {
 
 // Pure: the CreatePaymentLink request body. Square prices everything from the
 // catalog: no base_price_money anywhere.
-export function paymentLinkBody({ env, lines, name, note, pickup, idempotencyKey }) {
+export function paymentLinkBody({ env, lines, name, note, pickup, idempotencyKey, origin }) {
+  // SITE_URL, else the request's own origin; never a trailing slash.
+  const site = (env.SITE_URL || origin || "").replace(/\/+$/, "");
   const pickup_details = {
     recipient: { display_name: name },
     schedule_type: pickup.at ? "SCHEDULED" : "ASAP",
@@ -49,7 +51,7 @@ export function paymentLinkBody({ env, lines, name, note, pickup, idempotencyKey
       fulfillments: [{ type: "PICKUP", pickup_details }],
     },
     checkout_options: {
-      redirect_url: `${env.SITE_URL}/?status=success`,
+      redirect_url: `${site}/?status=success`,
       ask_for_shipping_address: false,
       allow_tipping: true,
       // Instant methods only. ACH is on by default for eligible sellers but
@@ -112,7 +114,7 @@ export async function onRequestPost({ request, env }) {
   try {
     const res = await sq(env, "/v2/online-checkout/payment-links", {
       method: "POST",
-      body: JSON.stringify(paymentLinkBody({ env, ...parsed, pickup, idempotencyKey: crypto.randomUUID() })),
+      body: JSON.stringify(paymentLinkBody({ env, ...parsed, pickup, idempotencyKey: crypto.randomUUID(), origin: new URL(request.url).origin })),
     });
     return json({ url: res.payment_link.url });
   } catch (e) {

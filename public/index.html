@@ -586,7 +586,7 @@ $("#checkout").onclick = async () => {
     if (res.status === 409) {
       await loadMenu(true);
       const dropped = pruneCart();
-      render(); renderPickup();
+      renderHeader(); render(); renderPickup();
       const changed = dropped.length ? " We updated your order: " + dropped.join(" ") : "";
       showMsg((body.error || "The menu changed.") + changed);
       if (!cart.size) $("#viewCart").focus();
@@ -595,7 +595,8 @@ $("#checkout").onclick = async () => {
     showMsg("Couldn't reach the restaurant. Check your connection and try again.");
   }
   btn.textContent = "Checkout with Square";
-  btn.disabled = !cart.size;
+  if (cart.size) renderPickup(); // re-applies "no pickup times" disabling
+  else btn.disabled = true;
 };
 
 // ---- sheets

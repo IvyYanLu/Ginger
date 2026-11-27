@@ -17,7 +17,20 @@ import { sq, listCatalog, getLocation, isPresentAt } from "../lib/square.js";
 import { parseDevVars } from "./dump-catalog.mjs";
 
 const TYPES = "ITEM,CATEGORY,MODIFIER_LIST,TAX";
-const ITEMS_PER_REQUEST = 150; // a batch holds at most 1,000 objects, variations included
+const MAX_BATCH_OBJECTS = 1000; // Square's per-batch limit, nested objects included
+
+// Split objects into chunks whose total size(o) stays within the batch limit.
+function chunkBy(objs, size) {
+  const out = [];
+  let cur = [], n = 0;
+  for (const o of objs) {
+    const k = size(o);
+    if (cur.length && n + k > MAX_BATCH_OBJECTS) { out.push(cur); cur = []; n = 0; }
+    cur.push(o); n += k;
+  }
+  if (cur.length) out.push(cur);
+  return out;
+}
 
 const pick = (o, keys) => Object.fromEntries(keys.filter((k) => o?.[k] !== undefined).map((k) => [k, o[k]]));
 const tmp = (id) => "#" + id;
@@ -59,8 +72,9 @@ export function buildPhases(objects, fromLoc, toLoc) {
     } });
   }
 
-  // 3. Modifier lists with their modifiers.
-  phases.push({ name: "modifier lists", objects: byType("MODIFIER_LIST"), build: (o) => {
+  // 3. Modifier lists with their modifiers, chunked by list + modifier count.
+  const listChunks = chunkBy(byType("MODIFIER_LIST"), (o) => 1 + (o.modifier_list_data?.modifiers?.length ?? 0));
+  listChunks.forEach((chunk, ci) => phases.push({ name: listChunks.length > 1 ? `modifier lists (part ${ci + 1})` : "modifier lists", objects: chunk, build: (o) => {
     const d = o.modifier_list_data ?? {};
     return {
       type: "MODIFIER_LIST", id: tmp(o.id), present_at_all_locations: true,
@@ -76,12 +90,14 @@ export function buildPhases(objects, fromLoc, toLoc) {
         })) }),
       },
     };
-  } });
+  } }));
 
-  // 4. Items with their variations, in chunks.
-  const items = byType("ITEM");
-  for (let i = 0; i < items.length; i += ITEMS_PER_REQUEST) {
-    phases.push({ name: `items ${i + 1}–${Math.min(i + ITEMS_PER_REQUEST, items.length)}`, objects: items.slice(i, i + ITEMS_PER_REQUEST), build: (o, real) => {
+  // 4. Items with their variations, chunked by item + variation count.
+  let first = 1;
+  for (const chunk of chunkBy(byType("ITEM"), (o) => 1 + (o.item_data?.variations?.length ?? 0))) {
+    const range = `${first}–${first + chunk.length - 1}`;
+    first += chunk.length;
+    phases.push({ name: `items ${range}`, objects: chunk, build: (o, real) => {
       const d = o.item_data ?? {};
       const ref = (r) => (r?.id && real(r.id) ? { id: real(r.id), ...pick(r, ["ordinal"]) } : undefined);
       const variations = (d.variations ?? []).filter((v) => !v.is_deleted && isPresentAt(v, fromLoc)).map((v) => {

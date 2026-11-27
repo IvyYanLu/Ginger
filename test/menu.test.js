@@ -25,7 +25,8 @@ describe("effectiveLimits", () => {
     test(`item ${im}/${iM} list ${lm}/${lM}`, () => assert.deepEqual(effectiveLimits(I(im, iM), L(lm, lM)), want));
   }
   test("missing item limits default to -1", () => assert.deepEqual(effectiveLimits({}, L(1, 2)), { min: 1, max: 2 }));
-  test("legacy SINGLE with no min/max -> max 1", () => assert.deepEqual(effectiveLimits({}, { selection_type: "SINGLE" }), { min: 0, max: 1 }));
+  test("legacy SINGLE with no min/max -> exactly one", () => assert.deepEqual(effectiveLimits({}, { selection_type: "SINGLE" }), { min: 1, max: 1 }));
+  test("SINGLE with -1/-1 list limits -> exactly one", () => assert.deepEqual(effectiveLimits({}, L(-1, -1, "SINGLE")), { min: 1, max: 1 }));
   test("legacy MULTIPLE with no min/max -> no limit", () => assert.deepEqual(effectiveLimits({}, { selection_type: "MULTIPLE" }), { min: 0, max: Infinity }));
   test("SINGLE with explicit limits uses them", () => assert.deepEqual(effectiveLimits({}, L(1, 1, "SINGLE")), { min: 1, max: 1 }));
 });
@@ -105,8 +106,8 @@ describe("normalizeMenu", () => {
     const roll = normalizeMenu(objs, location, env).menu.categories.flatMap((c) => c.items).find((i) => i.id === "I_CAL");
     assert.deepEqual(roll.modifierLists[1].modifiers.map((m) => m.default), [true, false, false]);
   });
-  test("legacy SINGLE list gets max 1; max lowered to visible count", () => {
-    assert.deepEqual(find("Ramen").modifierLists[0], { id: "ML_LEGACY", name: "Size", min: 0, max: 1, modifiers: [
+  test("legacy SINGLE list requires exactly 1; max lowered to visible count", () => {
+    assert.deepEqual(find("Ramen").modifierLists[0], { id: "ML_LEGACY", name: "Size", min: 1, max: 1, modifiers: [
       { id: "M_S", name: "Small", price: 0, default: false }, { id: "M_L", name: "Large", price: 200, default: false },
     ] });
     const objs = objects.map((o) => o.id === "ML_LEGACY" ? { ...o, modifier_list_data: { ...o.modifier_list_data, selection_type: "MULTIPLE" } } : o);
