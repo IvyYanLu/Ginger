@@ -120,6 +120,14 @@ nav.cats .lbl { display: none; }
 .meal > summary::after { content: "Show  ⌄"; white-space: pre; order: 2; font-size: 12px; font-weight: 600; color: var(--red); }
 .meal[open] > summary::after { content: "Hide  ⌃"; }
 .meal[open] > .sec:first-of-type { margin-top: 24px; }
+/* Lunch hours at the end of the open Lunch group, then an "All day" divider
+   before the rest of the menu (shown whether Lunch is open or not). */
+.mealend { margin-top: 28px; padding: 12px 16px; border-radius: 6px; background: var(--sage); text-align: center; font-size: 13px; font-weight: 500; color: var(--muted); }
+.allday { margin: 36px 0 24px; text-align: center; }
+.allday .mt { display: flex; align-items: center; gap: 16px; font: 400 24px/1.4 var(--serif); }
+.allday .mt::before, .allday .mt::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.allday .ms { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.allday + .sec { margin-top: 0; }
 
 .grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
 .card { display: flex; gap: 12px; min-height: 118px; background: var(--white); border: 1px solid var(--line); border-radius: 7px; padding: 12px 12px 12px 15px; }
@@ -625,7 +633,10 @@ function renderMenu() {
       <details class="meal" id="g-lunch" data-meal="lunch" ${open ? "open" : ""}>
         <summary><h2>Lunch</h2>${data.pickup?.lunchLabel ? `<span class="when">${esc(cap1(data.pickup.lunchLabel))}</span>` : ""}</summary>
         ${lunch.map(section).join("")}
-      </details>` + rest.map(section).join("");
+        ${data.pickup?.lunchLabel ? `<p class="mealend" role="note">Lunch is served ${esc(data.pickup.lunchLabel)}</p>` : ""}
+      </details>` + (rest.length ? `
+      <div class="allday" role="note"><p class="mt">All day</p><p class="ms">The rest of our menu is available whenever we’re open.</p></div>` : "")
+      + rest.map(section).join("");
   }
   $("#nav").innerHTML = pills.map(([id, name], i) => `<a href="#${id}" class="${i ? "" : "on"}" ${i ? "" : 'aria-current="true"'}>${esc(name)}</a>`).join("");
   spyCat();

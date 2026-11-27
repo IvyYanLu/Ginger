@@ -209,9 +209,14 @@ test("lunch group: collapsible, the rest of the menu always shown, state survive
   await page.locator("nav a", { hasText: "Lunch" }).click();
   expect(await lunch.evaluate((d) => d.open)).toBe(true);
   await expect(card(page, "Chicken Teriyaki")).toBeVisible();
+  // The open group ends with when lunch is served and that the rest sells all day.
+  await expect(lunch.locator(".mealend")).toHaveText("Lunch is served daily 11am–2:30pm");
+  await expect(page.locator(".allday")).toContainText("All day");
 
   // Collapse again; adding to the cart re-renders the menu and keeps it collapsed.
   await lunch.locator("summary").click();
+  await expect(lunch.locator(".mealend")).toBeHidden();
+  await expect(page.locator(".allday")).toBeVisible(); // labels the rest even with Lunch collapsed
   await card(page, "Edamame").getByRole("button", { name: "Add Edamame" }).click();
   await expect(card(page, "Edamame").locator(".step")).toBeVisible();
   expect(await lunch.evaluate((d) => d.open)).toBe(false);
