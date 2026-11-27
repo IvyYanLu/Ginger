@@ -181,3 +181,30 @@ test("plainText", () => {
   assert.equal(plainText("a <b>bold</b> &lt;b&gt;"), "a bold <b>");
   assert.equal(plainText(undefined), "");
 });
+
+describe("POS-only rows", () => {
+  const usd = (amount) => ({ amount, currency: "USD" });
+  const objs = [
+    { type: "CATEGORY", id: "C1", category_data: { name: "Maki" } },
+    { type: "MODIFIER_LIST", id: "ML1", modifier_list_data: { name: "Maki Add-ons", min_selected_modifiers: 0, max_selected_modifiers: 0, modifiers: [
+      { type: "MODIFIER", id: "M1", modifier_data: { name: "Avocado", price_money: usd(150), ordinal: 1 } },
+      { type: "MODIFIER", id: "M2", modifier_data: { name: "---------", ordinal: 2 } },
+      { type: "MODIFIER", id: "M3", modifier_data: { name: "$1 Key", price_money: usd(100), ordinal: 3 } },
+      { type: "MODIFIER", id: "M4", modifier_data: { name: "$1.5 key", price_money: usd(150), ordinal: 4 } },
+    ] } },
+    { type: "MODIFIER_LIST", id: "ML2", modifier_list_data: { name: "Special Instructions", modifier_type: "TEXT", min_selected_modifiers: 1, max_selected_modifiers: 1 } },
+    ...["Tuna Maki", "----------------------------------------------", "//////////"].map((name, i) => ({
+      type: "ITEM", id: "I" + i, item_data: { name, reporting_category: { id: "C1" },
+        variations: [{ type: "ITEM_VARIATION", id: "V" + i, item_variation_data: { name: "Regular", pricing_type: "FIXED_PRICING", price_money: usd(800) } }],
+        modifier_list_info: [{ modifier_list_id: "ML2", ordinal: 1 }, { modifier_list_id: "ML1", ordinal: 2 }] },
+    })),
+  ];
+  const { menu } = normalizeMenu(objs, {}, { HIDE_MODIFIERS: "$1 Key, $1.5 Key" });
+
+  test("separator items are hidden", () => assert.deepEqual(menu.categories[0].items.map((i) => i.name), ["Tuna Maki"]));
+  test("separator modifiers and HIDE_MODIFIERS (case-insensitive) are hidden; a required TEXT list doesn't hide the item", () => {
+    const [l] = menu.categories[0].items[0].modifierLists;
+    assert.equal(l.name, "Maki Add-ons");
+    assert.deepEqual(l.modifiers.map((m) => m.name), ["Avocado"]);
+  });
+});

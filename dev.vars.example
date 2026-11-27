@@ -5,6 +5,7 @@ SQUARE_ENV=sandbox
 SITE_URL=http://localhost:8788
 HIDE_CATEGORIES=Cocktails,Wine,Sake,Beer
 HIDE_MODIFIER_LISTS=
+HIDE_MODIFIERS=$1 Key,$1.5 Key,$2 Key,$3 Key
 # "*" = all other categories, A–Z
 CATEGORY_ORDER=Appetizers,*,Desserts,Drinks
 PREP_TIME=PT20M

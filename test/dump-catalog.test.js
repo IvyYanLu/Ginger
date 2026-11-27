@@ -39,3 +39,16 @@ test("top-level categories with an empty parent_category are not flagged", () =>
   assert.ok(!r.includes("?undefined"), r);
   assert.ok(r.includes("[parent: Maki]"), r);
 });
+
+test("required TEXT lists don't warn (the site skips them); separator rows are marked", () => {
+  const usd = (amount) => ({ amount, currency: "USD" });
+  const objs = [
+    { type: "MODIFIER_LIST", id: "T", present_at_all_locations: true, modifier_list_data: { name: "Special Instructions", modifier_type: "TEXT", min_selected_modifiers: 1, max_selected_modifiers: 1 } },
+    ...["Edamame", "-------"].map((name, i) => ({ type: "ITEM", id: "I" + i, present_at_all_locations: true, item_data: { name, categories: [{ id: "X" }],
+      variations: [{ type: "ITEM_VARIATION", id: "V" + i, present_at_all_locations: true, item_variation_data: { name: "", pricing_type: "FIXED_PRICING", price_money: usd(600) } }],
+      modifier_list_info: [{ modifier_list_id: "T" }] } })),
+  ];
+  const r = buildReport(objs, null, "LOC1");
+  assert.ok(!r.includes('requires 1 from "Special Instructions"'), r);
+  assert.ok(r.includes("(separator row: hidden online)"), r);
+});

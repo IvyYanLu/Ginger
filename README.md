@@ -52,6 +52,7 @@ Every request sends `Square-Version: 2026-11-18`, set as `SQUARE_VERSION` in `li
 | `SITE_URL` | yes | No trailing slash. Used for the post-payment redirect |
 | `HIDE_CATEGORIES` | | Comma-separated, case-insensitive. An item is hidden if **any** of its categories is listed. Currently `Cocktails,Wine,Sake,Beer` |
 | `HIDE_MODIFIER_LISTS` | | Staff-only modifier lists, e.g. `Rush,Comp` |
+| `HIDE_MODIFIERS` | | Staff-only single modifiers by name, case-insensitive. Currently the POS price keys `$1 Key,$1.5 Key,$2 Key,$3 Key`. Separator rows such as `---------` (items or modifiers with no letter or digit) are always hidden |
 | `CATEGORY_ORDER` | | Display order; `*` = all other categories A–Z. Currently `Appetizers,*,Desserts,Drinks` |
 | `PREP_TIME` | | ISO 8601 duration, default `PT20M` |
 | `BUSY_PREP_TIME` | | Longer prep in busy windows, in the restaurant's time zone. Currently `FRI-SAT 17:00-19:00 PT30M`. Separate several rules with `;` |

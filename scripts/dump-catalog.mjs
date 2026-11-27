@@ -3,7 +3,7 @@
 // Usage: node scripts/dump-catalog.mjs   (reads env vars, falling back to .dev.vars)
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { listCatalog, getLocation, isPresentAt, childLists } from "../lib/square.js";
+import { listCatalog, getLocation, isPresentAt, childLists, isSeparator } from "../lib/square.js";
 
 // Minimal KEY=value parser for .dev.vars (quotes optional, # comments).
 export function parseDevVars(text) {
@@ -82,6 +82,7 @@ export function buildReport(objects, location, locationId) {
     ].filter(Boolean);
     L.push("", `• ${d.name}  (${it.id})${here(it)}${flag(d.is_archived, "ARCHIVED")}`);
     L.push(`    ecom_visibility: ${d.ecom_visibility ?? "—"}   images: ${d.image_ids?.length ?? 0}   ${cats.join(" · ") || "NO CATEGORY"}`);
+    if (isSeparator(d.name)) { L.push("    (separator row: hidden online)"); continue; }
     if (!cats.length) warn.push(`Item "${d.name}" has no category (will show under "Other").`);
     for (const v of d.variations ?? []) {
       const vd = v.item_variation_data;
@@ -124,7 +125,7 @@ export function buildReport(objects, location, locationId) {
     // Required lists with nothing visible, at list level or via item override.
     for (const it of items) {
       const info = (it.item_data.modifier_list_info ?? []).find((i) => i.modifier_list_id === lst.id);
-      if (!info || info.enabled === false) continue;
+      if (!info || info.enabled === false || ld.modifier_type === "TEXT") continue; // TEXT lists are skipped online
       const min = info.min_selected_modifiers > 0 ? info.min_selected_modifiers : ld.min_selected_modifiers ?? 0;
       const hiddenByOverride = new Set((info.modifier_overrides ?? []).filter((o) => o.hidden_online).map((o) => o.modifier_id));
       const vis = (ld.modifiers ?? []).filter((m) => isPresentAt(m, locationId) && !m.modifier_data.hidden_online && !hiddenByOverride.has(m.id)).length;
